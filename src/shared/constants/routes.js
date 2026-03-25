@@ -10,8 +10,11 @@
  * 각 경로는 React Router의 <Route path=""> 속성에 사용된다.
  */
 export const ROUTES = {
-  /** 홈 (랜딩 페이지) */
-  HOME: '/',
+  /** 랜딩 페이지 (서비스/팀 소개) */
+  LANDING: '/',
+
+  /** 홈 페이지 (인기/최신 영화 목록) */
+  HOME: '/home',
 
   /** AI 채팅 추천 페이지 */
   CHAT: '/chat',
@@ -34,8 +37,11 @@ export const ROUTES = {
   /** 회원가입 페이지 */
   SIGNUP: '/signup',
 
-  /** OAuth 콜백 페이지 (동적 파라미터 :provider) */
+  /** OAuth 콜백 페이지 — 구 방식: 인가 코드 직접 처리 (동적 파라미터 :provider) */
   OAUTH_CALLBACK: '/auth/callback/:provider',
+
+  /** OAuth 쿠키 교환 페이지 — Spring Security OAuth2 Client 방식 */
+  OAUTH_COOKIE: '/cookie',
 
   /** 포인트 관리 페이지 */
   POINT: '/point',
@@ -70,7 +76,7 @@ export function buildPath(route, params = {}) {
  * Header 컴포넌트에서 반복 렌더링에 사용한다.
  */
 export const NAV_ITEMS = [
-  { path: ROUTES.HOME, label: '홈' },
+  { path: ROUTES.HOME, label: '홈' },  // /home (영화 목록)
   { path: ROUTES.CHAT, label: 'AI 추천' },
   { path: ROUTES.COMMUNITY, label: '커뮤니티' },
   { path: ROUTES.SEARCH, label: '검색' },
