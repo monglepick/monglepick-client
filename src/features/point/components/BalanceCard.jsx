@@ -11,14 +11,14 @@
  */
 
 import Loading from '../../../shared/components/Loading/Loading';
-import './BalanceCard.css';
+import * as S from './BalanceCard.styled';
 
-/** 등급별 표시 설정 (색상, 라벨) */
-const GRADE_CONFIG = {
-  BRONZE: { label: 'Bronze', color: '#cd7f32', bg: 'rgba(205, 127, 50, 0.15)' },
-  SILVER: { label: 'Silver', color: '#c0c0c0', bg: 'rgba(192, 192, 192, 0.15)' },
-  GOLD: { label: 'Gold', color: '#ffd700', bg: 'rgba(255, 215, 0, 0.15)' },
-  PLATINUM: { label: 'Platinum', color: '#e5e4e2', bg: 'rgba(229, 228, 226, 0.15)' },
+/** 등급별 표시 라벨 */
+const GRADE_LABELS = {
+  BRONZE:   'Bronze',
+  SILVER:   'Silver',
+  GOLD:     'Gold',
+  PLATINUM: 'Platinum',
 };
 
 export default function BalanceCard({
@@ -27,49 +27,40 @@ export default function BalanceCard({
   onNavigatePayment,
   formatNumber,
 }) {
-  /* 등급 설정 */
+  /* 등급 키 — 없으면 BRONZE 기본값 */
   const gradeKey = balanceInfo?.grade || 'BRONZE';
-  const gradeConfig = GRADE_CONFIG[gradeKey] || GRADE_CONFIG.BRONZE;
 
   return (
-    <section className="point-page__section point-page__summary">
+    /* SummarySection은 point-page__section + point-page__summary 역할을 겸함 */
+    <S.SummarySection className="point-page__section">
       {isLoading ? (
         <Loading message="포인트 정보 로딩 중..." />
       ) : (
-        <div className="point-page__summary-card">
+        <S.SummaryCard>
           {/* 좌측: 잔액 정보 */}
-          <div className="point-page__summary-left">
-            <p className="point-page__summary-label">보유 포인트</p>
-            <p className="point-page__summary-balance">
+          <S.SummaryLeft>
+            <S.SummaryLabel>보유 포인트</S.SummaryLabel>
+            <S.SummaryBalance>
               {formatNumber(balanceInfo?.balance)}
-              <span className="point-page__summary-unit">P</span>
-            </p>
-            <p className="point-page__summary-earned">
+              <S.SummaryUnit>P</S.SummaryUnit>
+            </S.SummaryBalance>
+            <S.SummaryEarned>
               총 획득: {formatNumber(balanceInfo?.totalEarned)}P
-            </p>
-          </div>
+            </S.SummaryEarned>
+          </S.SummaryLeft>
 
           {/* 우측: 등급 배지 + 충전 버튼 */}
-          <div className="point-page__summary-right">
-            <div
-              className="point-page__grade-badge"
-              style={{
-                backgroundColor: gradeConfig.bg,
-                color: gradeConfig.color,
-                borderColor: gradeConfig.color,
-              }}
-            >
-              {gradeConfig.label}
-            </div>
-            <button
-              className="point-page__charge-btn"
-              onClick={onNavigatePayment}
-            >
+          <S.SummaryRight>
+            {/* $grade prop으로 등급별 색상 적용 (인라인 스타일 제거) */}
+            <S.GradeBadge $grade={gradeKey}>
+              {GRADE_LABELS[gradeKey] || gradeKey}
+            </S.GradeBadge>
+            <S.ChargeButton onClick={onNavigatePayment}>
               충전하기
-            </button>
-          </div>
-        </div>
+            </S.ChargeButton>
+          </S.SummaryRight>
+        </S.SummaryCard>
       )}
-    </section>
+    </S.SummarySection>
   );
 }

@@ -16,7 +16,7 @@
  */
 
 import Loading from '../../../shared/components/Loading/Loading';
-import './ItemExchange.css';
+import * as S from './ItemExchange.styled';
 
 /** 아이템 카테고리 필터 탭 목록 */
 const ITEM_CATEGORIES = ['전체', 'AI', '쿠폰', '아바타'];
@@ -32,49 +32,43 @@ export default function ItemExchange({
   formatNumber,
 }) {
   return (
-    <section className="point-page__section point-page__items">
-      <h2 className="point-page__section-title">아이템 교환</h2>
+    <S.Section>
+      <S.SectionTitle>아이템 교환</S.SectionTitle>
 
       {/* 카테고리 필터 탭 */}
-      <div className="point-page__items-tabs">
+      <S.Tabs>
         {ITEM_CATEGORIES.map((category) => (
-          <button
+          <S.Tab
             key={category}
-            className={[
-              'point-page__items-tab',
-              selectedCategory === category ? 'point-page__items-tab--active' : '',
-            ].join(' ')}
+            $active={selectedCategory === category}
             onClick={() => onCategoryChange(category)}
           >
             {category}
-          </button>
+          </S.Tab>
         ))}
-      </div>
+      </S.Tabs>
 
       {/* 아이템 그리드 */}
       {isLoading ? (
         <Loading message="아이템 로딩 중..." />
       ) : items.length === 0 ? (
-        <div className="point-page__items-empty">
+        <S.Empty>
           <p>교환 가능한 아이템이 없습니다.</p>
-        </div>
+        </S.Empty>
       ) : (
-        <div className="point-page__items-grid">
+        <S.Grid>
           {items.map((item) => (
-            <div key={item.itemId} className="point-page__item-card">
+            <S.Card key={item.itemId}>
               {/* 아이템 카테고리 태그 */}
-              <span className="point-page__item-category">{item.category}</span>
+              <S.CategoryTag>{item.category}</S.CategoryTag>
               {/* 아이템 이름 */}
-              <h3 className="point-page__item-name">{item.name}</h3>
+              <S.ItemName>{item.name}</S.ItemName>
               {/* 아이템 설명 */}
-              <p className="point-page__item-desc">{item.description}</p>
+              <S.ItemDesc>{item.description}</S.ItemDesc>
               {/* 가격 및 교환 버튼 */}
-              <div className="point-page__item-footer">
-                <span className="point-page__item-price">
-                  {formatNumber(item.price)}P
-                </span>
-                <button
-                  className="point-page__item-exchange-btn"
+              <S.Footer>
+                <S.Price>{formatNumber(item.price)}P</S.Price>
+                <S.ExchangeBtn
                   onClick={() => onExchangeItem(item)}
                   disabled={
                     exchangingItemId === item.itemId ||
@@ -86,12 +80,12 @@ export default function ItemExchange({
                     : (balance || 0) < item.price
                       ? '포인트 부족'
                       : '교환'}
-                </button>
-              </div>
-            </div>
+                </S.ExchangeBtn>
+              </S.Footer>
+            </S.Card>
           ))}
-        </div>
+        </S.Grid>
       )}
-    </section>
+    </S.Section>
   );
 }

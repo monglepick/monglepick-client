@@ -13,15 +13,15 @@
  */
 
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 /* 인증 Context 훅 — app/providers에서 가져옴 */
 import useAuthStore from '../../../shared/stores/useAuthStore';
 /* 쿠키→헤더 교환 API — 같은 feature 내의 authApi에서 가져옴 */
 import { exchangeToken } from '../api/authApi';
 /* 라우트 경로 상수 — shared/constants에서 가져옴 */
 import { ROUTES } from '../../../shared/constants/routes';
-/* OAuthCallbackPage와 동일한 CSS 스타일 재사용 */
-import './OAuthCallbackPage.css';
+/* OAuthCallbackPage와 동일한 styled-components 재사용 */
+import * as S from './OAuthCallbackPage.styled';
 
 export default function OAuthCookiePage() {
   const navigate = useNavigate();
@@ -70,23 +70,23 @@ export default function OAuthCookiePage() {
   // 처리 중이고 에러가 없으면 로딩 스피너 표시
   if (isProcessing && !error) {
     return (
-      <div className="oauth-callback">
-        <div className="oauth-callback__spinner" />
-        <p className="oauth-callback__message">소셜 로그인 처리 중...</p>
-      </div>
+      <S.OAuthCallbackWrapper>
+        <S.Spinner />
+        <S.Message>소셜 로그인 처리 중...</S.Message>
+      </S.OAuthCallbackWrapper>
     );
   }
 
   // 에러 발생 시 에러 메시지와 로그인 페이지 링크 표시
   return (
-    <div className="oauth-callback">
-      <div className="oauth-callback__error">
-        <h2>로그인 실패</h2>
-        <p>{error}</p>
-        <Link to={ROUTES.LOGIN} className="oauth-callback__link">
+    <S.OAuthCallbackWrapper>
+      <S.ErrorContainer>
+        <S.ErrorTitle>로그인 실패</S.ErrorTitle>
+        <S.ErrorDescription>{error}</S.ErrorDescription>
+        <S.BackLink to={ROUTES.LOGIN}>
           로그인 페이지로 돌아가기
-        </Link>
-      </div>
-    </div>
+        </S.BackLink>
+      </S.ErrorContainer>
+    </S.OAuthCallbackWrapper>
   );
 }

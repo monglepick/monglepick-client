@@ -16,7 +16,8 @@ import useAuthStore from '../../../shared/stores/useAuthStore';
 import { ROUTES } from '../../../shared/constants/routes';
 /* 회원가입 폼 — 같은 feature 내의 components에서 가져옴 */
 import SignUpForm from '../components/SignUpForm';
-import './SignUpPage.css';
+/* styled-components — SignUpPage 전용 스타일 */
+import * as S from './SignUpPage.styled';
 
 export default function SignUpPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
@@ -33,12 +34,12 @@ export default function SignUpPage() {
   }, [isAuthenticated, isLoading, navigate]);
 
   return (
-    <div className="signup-page">
+    <S.SignUpPageWrapper>
       {/* 배경 장식 — Floating Orb 3개 (보라/시안/핑크) */}
-      <div className="signup-page__deco signup-page__deco--1" aria-hidden="true" />
-      <div className="signup-page__deco signup-page__deco--2" aria-hidden="true" />
-      <div className="signup-page__deco signup-page__deco--3" aria-hidden="true" />
+      <S.Orb1 aria-hidden="true" />
+      <S.Orb2 aria-hidden="true" />
+      <S.Orb3 aria-hidden="true" />
       <SignUpForm />
-    </div>
+    </S.SignUpPageWrapper>
   );
 }

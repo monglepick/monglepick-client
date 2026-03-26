@@ -13,21 +13,21 @@
 import Header from '../Header/Header';
 /* 푸터 컴포넌트 — shared/components/Footer에서 가져옴 */
 import Footer from '../Footer/Footer';
-import './MainLayout.css';
+import { LayoutWrapper, MainContent } from './MainLayout.styled';
 
 export default function MainLayout({ children }) {
   return (
-    <div className="main-layout">
+    <LayoutWrapper>
       {/* 상단 네비게이션 헤더 */}
       <Header />
 
       {/* 메인 컨텐츠 영역 — 남은 공간을 모두 차지 (flex-grow: 1) */}
-      <main className="main-layout__content">
+      <MainContent>
         {children}
-      </main>
+      </MainContent>
 
       {/* 하단 푸터 */}
       <Footer />
-    </div>
+    </LayoutWrapper>
   );
 }

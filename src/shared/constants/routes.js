@@ -53,6 +53,9 @@ export const ROUTES = {
   PAYMENT_FAIL: '/payment/fail',
   /** 고객센터 페이지 */
   SUPPORT: '/support',
+
+  /** Movie Match 페이지 — 두 영화 교집합 기반 함께 볼 영화 추천 */
+  MATCH: '/match',
 };
 
 /**
@@ -80,8 +83,9 @@ export function buildPath(route, params = {}) {
  * Header 컴포넌트에서 반복 렌더링에 사용한다.
  */
 export const NAV_ITEMS = [
-  { path: ROUTES.HOME, label: '홈' },  // /home (영화 목록)
-  { path: ROUTES.CHAT, label: 'AI 추천' },
-  { path: ROUTES.COMMUNITY, label: '커뮤니티' },
-  { path: ROUTES.SEARCH, label: '검색' },
+  { path: ROUTES.HOME, label: '홈' },           // /home (영화 목록)
+  { path: ROUTES.CHAT, label: 'AI 추천' },       // /chat (SSE 스트리밍 채팅)
+  { path: ROUTES.MATCH, label: 'Movie Match' },  // /match (두 영화 교집합 추천)
+  { path: ROUTES.COMMUNITY, label: '커뮤니티' }, // /community (게시판 + 리뷰)
+  { path: ROUTES.SEARCH, label: '검색' },        // /search (키워드 + 필터)
 ];

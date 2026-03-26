@@ -14,22 +14,22 @@
  */
 
 import Loading from '../../../shared/components/Loading/Loading';
-import './OrderHistory.css';
+import * as S from './OrderHistory.styled';
 
-/** 주문 상태별 표시 라벨 및 색상 */
+/** 주문 상태별 표시 라벨 (색상은 styled-components $status prop으로 처리) */
 const ORDER_STATUS_CONFIG = {
-  PENDING: { label: '대기 중', color: 'var(--warning)' },
-  COMPLETED: { label: '완료', color: 'var(--success)' },
-  FAILED: { label: '실패', color: 'var(--error)' },
-  REFUNDED: { label: '환불', color: 'var(--text-muted)' },
-  CANCELLED: { label: '취소', color: 'var(--text-muted)' },
+  PENDING:   { label: '대기 중' },
+  COMPLETED: { label: '완료' },
+  FAILED:    { label: '실패' },
+  REFUNDED:  { label: '환불' },
+  CANCELLED: { label: '취소' },
 };
 
 /** 주문 유형별 표시 라벨 */
 const ORDER_TYPE_LABELS = {
-  POINT_CHARGE: '포인트 충전',
+  POINT_CHARGE:   '포인트 충전',
   POINT_PURCHASE: '포인트 충전',
-  SUBSCRIPTION: '구독 결제',
+  SUBSCRIPTION:   '구독 결제',
 };
 
 export default function OrderHistory({
@@ -46,87 +46,85 @@ export default function OrderHistory({
 
   if (orders.content.length === 0) {
     return (
-      <div className="order-history__empty">
+      <S.EmptyWrapper>
         <p>결제 내역이 없습니다.</p>
-      </div>
+      </S.EmptyWrapper>
     );
   }
 
   return (
     <>
       {/* 결제 내역 테이블 */}
-      <div className="order-history__table-wrapper">
-        <table className="order-history__table">
+      <S.TableWrapper>
+        <S.Table>
           <thead>
             <tr>
-              <th>주문번호</th>
-              <th>유형</th>
-              <th>금액</th>
-              <th>상태</th>
-              <th>일시</th>
+              <S.Th>주문번호</S.Th>
+              <S.Th>유형</S.Th>
+              <S.Th>금액</S.Th>
+              <S.Th>상태</S.Th>
+              <S.Th>일시</S.Th>
             </tr>
           </thead>
           <tbody>
             {orders.content.map((order, idx) => {
               const statusConfig = ORDER_STATUS_CONFIG[order.status] || {
                 label: order.status,
-                color: 'var(--text-secondary)',
               };
 
               return (
-                <tr key={order.orderId || idx}>
-                  <td className="order-history__order-id">
+                <S.Tr key={order.orderId || idx}>
+                  {/* 주문번호 — 고정폭 폰트 */}
+                  <S.OrderIdCell>
                     {order.orderId
                       ? `${order.orderId.slice(0, 8)}...`
                       : '-'}
-                  </td>
-                  <td>
+                  </S.OrderIdCell>
+                  <S.Td>
                     {ORDER_TYPE_LABELS[order.orderType] || order.orderType || '-'}
-                  </td>
-                  <td className="order-history__order-amount">
+                  </S.Td>
+                  {/* 금액 */}
+                  <S.AmountCell>
                     {formatNumber(order.amount)}원
-                  </td>
-                  <td>
-                    <span
-                      className="order-history__order-status"
-                      style={{ color: statusConfig.color }}
-                    >
+                  </S.AmountCell>
+                  <S.Td>
+                    {/* $status prop으로 상태별 색상 적용 (인라인 스타일 제거) */}
+                    <S.StatusBadge $status={order.status}>
                       {statusConfig.label}
-                    </span>
-                  </td>
-                  <td className="order-history__order-date">
+                    </S.StatusBadge>
+                  </S.Td>
+                  {/* 일시 */}
+                  <S.DateCell>
                     {formatDate(order.completedAt || order.createdAt)}
-                  </td>
-                </tr>
+                  </S.DateCell>
+                </S.Tr>
               );
             })}
           </tbody>
-        </table>
-      </div>
+        </S.Table>
+      </S.TableWrapper>
 
       {/* 페이지네이션 */}
       {orders.totalPages > 1 && (
-        <div className="order-history__pagination">
-          <button
-            className="order-history__pagination-btn"
+        <S.Pagination>
+          <S.PaginationButton
             onClick={() => onPageChange((prev) => Math.max(0, prev - 1))}
             disabled={orderPage === 0}
           >
             이전
-          </button>
-          <span className="order-history__pagination-info">
+          </S.PaginationButton>
+          <S.PaginationInfo>
             {orderPage + 1} / {orders.totalPages}
-          </span>
-          <button
-            className="order-history__pagination-btn"
+          </S.PaginationInfo>
+          <S.PaginationButton
             onClick={() =>
               onPageChange((prev) => Math.min(orders.totalPages - 1, prev + 1))
             }
             disabled={orderPage >= orders.totalPages - 1}
           >
             다음
-          </button>
-        </div>
+          </S.PaginationButton>
+        </S.Pagination>
       )}
     </>
   );

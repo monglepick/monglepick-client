@@ -10,18 +10,18 @@
  * @param {string} [props.size='md'] - 스피너 크기 (sm, md, lg)
  */
 
-import './Loading.css';
+import * as S from './Loading.styled';
 
 export default function Loading({ message = '로딩 중...', fullPage = false, size = 'md' }) {
   return (
-    <div className={`loading ${fullPage ? 'loading--full-page' : ''}`}>
+    <S.Wrapper $fullPage={fullPage}>
       {/* 스피너 원형 애니메이션 */}
-      <div className={`loading__spinner loading__spinner--${size}`}>
-        <div className="loading__spinner-ring"></div>
-      </div>
+      <S.Spinner $size={size}>
+        <S.SpinnerRing $size={size} />
+      </S.Spinner>
 
       {/* 로딩 메시지 */}
-      {message && <p className="loading__message">{message}</p>}
-    </div>
+      {message && <S.Message>{message}</S.Message>}
+    </S.Wrapper>
   );
 }

@@ -11,7 +11,7 @@
  */
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import './PaymentCallbackPage.css';
+import * as S from './PaymentCallbackPage.styled';
 
 /** Toss 에러 코드별 사용자 친화적 메시지 매핑 */
 const ERROR_MESSAGES = {
@@ -41,45 +41,39 @@ export default function PaymentFailPage() {
   const displayMessage = ERROR_MESSAGES[code] || message;
 
   return (
-    <div className="payment-callback">
-      <div className="payment-callback__card">
+    <S.Wrapper>
+      <S.Card>
         {/* 실패 아이콘 */}
-        <div className="payment-callback__icon payment-callback__icon--fail">!</div>
+        <S.Icon $variant="fail">!</S.Icon>
 
         {/* 제목 */}
-        <h1 className="payment-callback__title">결제에 실패했습니다</h1>
+        <S.Title>결제에 실패했습니다</S.Title>
 
         {/* 에러 메시지 */}
-        <p className="payment-callback__message">{displayMessage}</p>
+        <S.Message>{displayMessage}</S.Message>
 
         {/* 디버그 정보 (에러 코드 + 주문번호) */}
-        <div className="payment-callback__debug">
-          <p className="payment-callback__debug-item">
+        <S.Debug>
+          <S.DebugItem>
             에러 코드: <span>{code}</span>
-          </p>
+          </S.DebugItem>
           {orderId && (
-            <p className="payment-callback__debug-item">
+            <S.DebugItem>
               주문번호: <span>{orderId.slice(0, 8)}...</span>
-            </p>
+            </S.DebugItem>
           )}
-        </div>
+        </S.Debug>
 
         {/* 액션 버튼 */}
-        <div className="payment-callback__actions">
-          <button
-            className="payment-callback__btn payment-callback__btn--primary"
-            onClick={() => navigate('/payment')}
-          >
+        <S.Actions>
+          <S.BtnPrimary onClick={() => navigate('/payment')}>
             다시 시도하기
-          </button>
-          <button
-            className="payment-callback__btn payment-callback__btn--secondary"
-            onClick={() => navigate('/support')}
-          >
+          </S.BtnPrimary>
+          <S.BtnSecondary onClick={() => navigate('/support')}>
             고객센터 문의
-          </button>
-        </div>
-      </div>
-    </div>
+          </S.BtnSecondary>
+        </S.Actions>
+      </S.Card>
+    </S.Wrapper>
   );
 }

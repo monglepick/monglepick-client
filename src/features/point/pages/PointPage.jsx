@@ -35,7 +35,7 @@ import ItemExchange from '../components/ItemExchange';
 import PointHistory from '../components/PointHistory';
 /* 포맷 유틸 — shared/utils에서 가져옴 */
 import { formatDate, formatNumberWithComma as formatNumber } from '../../../shared/utils/formatters';
-import './PointPage.css';
+import * as S from './PointPage.styled';
 
 /** 한 페이지에 표시할 이력 건수 */
 const HISTORY_PAGE_SIZE = 10;
@@ -271,16 +271,16 @@ export default function PointPage() {
   }
 
   return (
-    <div className="point-page">
-      <div className="point-page__inner">
+    <S.PageWrapper>
+      <S.PageInner>
         {/* 페이지 제목 */}
-        <h1 className="point-page__title">포인트 관리</h1>
+        <S.PageTitle>포인트 관리</S.PageTitle>
 
         {/* 글로벌 에러 메시지 */}
         {error && (
-          <div className="point-page__error" role="alert">
+          <S.ErrorBanner role="alert">
             {error}
-          </div>
+          </S.ErrorBanner>
         )}
 
         {/* 섹션 1: 포인트 요약 */}
@@ -321,7 +321,7 @@ export default function PointPage() {
           formatNumber={formatNumber}
           formatDate={formatDate}
         />
-      </div>
-    </div>
+      </S.PageInner>
+    </S.PageWrapper>
   );
 }

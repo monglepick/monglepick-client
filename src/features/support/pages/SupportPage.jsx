@@ -32,7 +32,7 @@ import TicketTab from '../components/TicketTab';
 
 /* 포맷 유틸 — shared/utils에서 가져옴 */
 import { formatDate } from '../../../shared/utils/formatters';
-import './SupportPage.css';
+import * as S from './SupportPage.styled';
 
 /* ══════════════════════════════════════════
    상수 정의
@@ -364,44 +364,41 @@ export default function SupportPage() {
   }
 
   return (
-    <div className="support-page">
-      <div className="support-page__inner">
+    <S.Page>
+      <S.Inner>
         {/* 페이지 헤더 */}
-        <header className="support-page__header">
-          <h1 className="support-page__title">고객센터</h1>
-          <p className="support-page__subtitle">
+        <S.Header>
+          <S.Title>고객센터</S.Title>
+          <S.Subtitle>
             무엇이든 물어보세요. 몽글픽이 도와드립니다.
-          </p>
-        </header>
+          </S.Subtitle>
+        </S.Header>
 
         {/* 글로벌 에러 메시지 */}
         {error && (
-          <div className="support-page__error" role="alert">
+          <S.ErrorMsg role="alert">
             {error}
-          </div>
+          </S.ErrorMsg>
         )}
 
         {/* 섹션 탭 네비게이션 */}
-        <nav className="support-page__nav" role="tablist" aria-label="고객센터 섹션">
+        <S.Nav role="tablist" aria-label="고객센터 섹션">
           {SECTION_TABS.map((tab) => {
             if (tab.key === 'history' && !isAuthenticated) return null;
             return (
-              <button
+              <S.NavBtn
                 key={tab.key}
                 role="tab"
                 aria-selected={activeSection === tab.key}
                 aria-controls={`support-panel-${tab.key}`}
-                className={[
-                  'support-page__nav-btn',
-                  activeSection === tab.key ? 'support-page__nav-btn--active' : '',
-                ].join(' ')}
+                $isActive={activeSection === tab.key}
                 onClick={() => setActiveSection(tab.key)}
               >
                 {tab.label}
-              </button>
+              </S.NavBtn>
             );
           })}
-        </nav>
+        </S.Nav>
 
         {/* FAQ 탭 */}
         {activeSection === 'faq' && (
@@ -473,7 +470,7 @@ export default function SupportPage() {
             formatDate={formatDate}
           />
         )}
-      </div>
-    </div>
+      </S.Inner>
+    </S.Page>
   );
 }

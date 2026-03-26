@@ -160,6 +160,18 @@ export const SUBSCRIPTION_ENDPOINTS = {
 };
 
 /**
+ * Movie Match 관련 엔드포인트.
+ * 두 영화의 교집합 특성 분석 및 함께 볼 영화 추천을 처리한다.
+ * AI Agent(:8000)에 직접 요청 — Vite 프록시가 /api/* → :8000으로 전달.
+ */
+export const MATCH_ENDPOINTS = {
+  /** SSE 스트리밍 Match 요청 - POST (body: {movie_id_1, movie_id_2, user_id?}) */
+  STREAM: `${API_VERSION}/match`,
+  /** 동기 Match 요청 (디버그용) - POST */
+  SYNC: `${API_VERSION}/match/sync`,
+};
+
+/**
  * 고객센터(Support) 관련 엔드포인트.
  * FAQ, 도움말, 상담 티켓을 처리한다.
  */

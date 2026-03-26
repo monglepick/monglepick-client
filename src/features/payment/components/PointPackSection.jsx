@@ -11,47 +11,41 @@
  * @param {Function} props.formatNumber - 숫자 포맷팅 함수
  */
 
-import './PointPackSection.css';
+import * as S from './PointPackSection.styled';
 
 export default function PointPackSection({ packs, processingId, onBuyPack, formatNumber }) {
   return (
-    <div className="point-pack-grid">
+    <S.Grid>
       {packs.map((pack) => (
-        <div
-          key={pack.id}
-          className={[
-            'point-pack-card',
-            pack.best ? 'point-pack-card--best' : '',
-          ].join(' ')}
-        >
+        /* $best prop으로 BEST 팩 강조 스타일 토글 (인라인 className 제거) */
+        <S.Card key={pack.id} $best={pack.best}>
           {/* 보너스/최고 혜택 배지 */}
           {pack.best && (
-            <div className="point-pack-card__badge">BEST</div>
+            <S.Badge>BEST</S.Badge>
           )}
 
           {/* 포인트 수량 */}
-          <div className="point-pack-card__points">{pack.label}</div>
+          <S.Points>{pack.label}</S.Points>
 
           {/* 보너스 안내 */}
           {pack.bonus && (
-            <span className="point-pack-card__bonus">{pack.bonus}</span>
+            <S.BonusTag>{pack.bonus}</S.BonusTag>
           )}
 
           {/* 가격 */}
-          <div className="point-pack-card__price">
+          <S.Price>
             {formatNumber(pack.price)}원
-          </div>
+          </S.Price>
 
           {/* 구매 버튼 */}
-          <button
-            className="point-pack-card__btn"
+          <S.BuyButton
             onClick={() => onBuyPack(pack)}
             disabled={processingId === pack.id}
           >
             {processingId === pack.id ? '처리 중...' : '구매하기'}
-          </button>
-        </div>
+          </S.BuyButton>
+        </S.Card>
       ))}
-    </div>
+    </S.Grid>
   );
 }

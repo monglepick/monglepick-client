@@ -12,7 +12,8 @@
 import { useLocation } from 'react-router-dom';
 /* 채팅 윈도우 — 같은 feature 내의 components에서 가져옴 */
 import ChatWindow from '../components/ChatWindow';
-import './ChatPage.css';
+/* styled-components — ChatPage 전용 스타일 */
+import * as S from './ChatPage.styled';
 
 export default function ChatPage() {
   // HomePage에서 전달된 초기 질문 확인
@@ -20,9 +21,9 @@ export default function ChatPage() {
   const initialQuery = location.state?.initialQuery || '';
 
   return (
-    <div className="chat-page">
+    <S.ChatPageWrapper>
       {/* 기존 ChatWindow 컴포넌트 — 전체 채팅 UI 포함 */}
       <ChatWindow initialQuery={initialQuery} />
-    </div>
+    </S.ChatPageWrapper>
   );
 }

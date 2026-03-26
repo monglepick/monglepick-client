@@ -13,7 +13,7 @@
  * @param {function} [props.onAction] - 액션 버튼 클릭 핸들러
  */
 
-import './EmptyState.css';
+import * as S from './EmptyState.styled';
 
 export default function EmptyState({
   icon = '📭',
@@ -23,26 +23,26 @@ export default function EmptyState({
   onAction,
 }) {
   return (
-    <div className="empty-state">
+    <S.Wrapper>
       {/* 큰 이모지 아이콘 */}
-      <div className="empty-state__icon" aria-hidden="true">
+      <S.Icon aria-hidden="true">
         {icon}
-      </div>
+      </S.Icon>
 
       {/* 제목 */}
-      <h3 className="empty-state__title">{title}</h3>
+      <S.Title>{title}</S.Title>
 
       {/* 부가 설명 (선택) */}
       {description && (
-        <p className="empty-state__description">{description}</p>
+        <S.Description>{description}</S.Description>
       )}
 
       {/* 액션 버튼 (선택) */}
       {actionLabel && onAction && (
-        <button className="empty-state__action" onClick={onAction}>
+        <S.ActionButton onClick={onAction}>
           {actionLabel}
-        </button>
+        </S.ActionButton>
       )}
-    </div>
+    </S.Wrapper>
   );
 }

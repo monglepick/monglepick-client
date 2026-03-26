@@ -13,7 +13,7 @@
 import { formatRelativeTime, formatRatingStars, formatRating } from '../../../shared/utils/formatters';
 /* 로딩 스피너 — shared/components에서 가져옴 */
 import Loading from '../../../shared/components/Loading/Loading';
-import './ReviewList.css';
+import * as S from './ReviewList.styled';
 
 export default function ReviewList({ reviews = [], loading = false }) {
   // 로딩 중 표시
@@ -24,56 +24,56 @@ export default function ReviewList({ reviews = [], loading = false }) {
   // 리뷰가 없을 때
   if (!reviews || reviews.length === 0) {
     return (
-      <div className="review-list__empty">
-        <p className="review-list__empty-text">아직 작성된 리뷰가 없습니다.</p>
-        <p className="review-list__empty-hint">첫 번째 리뷰를 남겨보세요!</p>
-      </div>
+      <S.Empty>
+        <S.EmptyText>아직 작성된 리뷰가 없습니다.</S.EmptyText>
+        <S.EmptyHint>첫 번째 리뷰를 남겨보세요!</S.EmptyHint>
+      </S.Empty>
     );
   }
 
   return (
-    <div className="review-list">
+    <S.Wrapper>
       {reviews.map((review) => (
-        <article key={review.id} className="review-list__item">
+        <S.Item key={review.id}>
           {/* 리뷰 헤더 — 작성자 + 작성일 */}
-          <div className="review-list__header">
-            <div className="review-list__author-info">
+          <S.ItemHeader>
+            <S.AuthorInfo>
               {/* 작성자 아바타 */}
-              <span className="review-list__avatar">
+              <S.Avatar>
                 {review.author?.nickname?.charAt(0) || 'U'}
-              </span>
+              </S.Avatar>
               <div>
-                <span className="review-list__author-name">
+                <S.AuthorName>
                   {review.author?.nickname || '익명'}
-                </span>
-                <span className="review-list__time">
+                </S.AuthorName>
+                <S.Time>
                   {formatRelativeTime(review.createdAt)}
-                </span>
+                </S.Time>
               </div>
-            </div>
+            </S.AuthorInfo>
 
             {/* 평점 표시 */}
-            <div className="review-list__rating">
-              <span className="review-list__stars">
+            <S.Rating>
+              <S.Stars>
                 {formatRatingStars(review.rating)}
-              </span>
-              <span className="review-list__score">
+              </S.Stars>
+              <S.Score>
                 {formatRating(review.rating)}
-              </span>
-            </div>
-          </div>
+              </S.Score>
+            </S.Rating>
+          </S.ItemHeader>
 
           {/* 리뷰 내용 */}
-          <p className="review-list__content">{review.content}</p>
+          <S.ReviewContent>{review.content}</S.ReviewContent>
 
           {/* 좋아요 버튼 */}
-          <div className="review-list__footer">
-            <button className="review-list__like-btn">
+          <S.Footer>
+            <S.LikeBtn>
               ♡ {review.likeCount || 0}
-            </button>
-          </div>
-        </article>
+            </S.LikeBtn>
+          </S.Footer>
+        </S.Item>
       ))}
-    </div>
+    </S.Wrapper>
   );
 }

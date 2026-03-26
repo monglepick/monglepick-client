@@ -5,11 +5,10 @@
  * 회원가입 API를 호출한다.
  * 가입 성공 시 자동 로그인 처리 후 홈으로 리다이렉트한다.
  *
- * 개선 사항:
- * - 비밀번호 입력 시 강도 표시 바 (빨/노/초 3단계)
+ * - 비밀번호 입력 시 강도 표시 바 ($strength: 'weak'|'medium'|'strong')
  * - 제출 시 "처리 중..." 텍스트
- * - glassmorphism 배경 (CSS에서 처리)
- * - 소셜 버튼 lift 효과 (CSS에서 처리)
+ * - glassmorphism 배경 + borderGlow 호버
+ * - 소셜 버튼 lift 효과
  */
 
 import { useState, useMemo } from 'react';
@@ -19,59 +18,67 @@ import useAuthStore from '../../../shared/stores/useAuthStore';
 /* 회원가입 API — 같은 feature 내의 authApi에서 가져옴 */
 import { signup as signupAPI } from '../api/authApi';
 /* 유효성 검사 유틸 — shared/utils에서 가져옴 */
-import { validateEmail, validatePassword, validatePasswordConfirm, validateNickname } from '../../../shared/utils/validators';
+import {
+  validateEmail,
+  validatePassword,
+  validatePasswordConfirm,
+  validateNickname,
+} from '../../../shared/utils/validators';
 /* 라우트 경로 상수 — shared/constants에서 가져옴 */
 import { ROUTES } from '../../../shared/constants/routes';
 /* OAuth URL 생성 유틸 — shared/constants에서 가져옴 */
 import { buildOAuthUrl } from '../../../shared/constants/oauth';
-import './SignUpForm.css';
+import * as S from './SignUpForm.styled';
 
 /**
- * 비밀번호 강도를 0~3 스케일로 계산한다.
- * 0: 입력 없음, 1: 약함(빨강), 2: 보통(노랑), 3: 강함(초록)
+ * 비밀번호 강도를 'weak'|'medium'|'strong'|'' 문자열로 계산한다.
+ * styled-components $strength prop에 직접 전달하기 위해 문자열 반환.
  *
  * @param {string} pw - 비밀번호
- * @returns {number} 강도 레벨 (0~3)
+ * @returns {'weak'|'medium'|'strong'|''} 강도 레벨
  */
 function getPasswordStrength(pw) {
-  if (!pw) return 0;
+  if (!pw) return '';
   let score = 0;
-  // 길이 기준
+  /* 길이 기준 */
   if (pw.length >= 8) score += 1;
-  // 영문+숫자 조합
+  /* 영문+숫자 조합 */
   if (/[a-zA-Z]/.test(pw) && /[0-9]/.test(pw)) score += 1;
-  // 특수문자 포함
+  /* 특수문자 포함 */
   if (/[^a-zA-Z0-9]/.test(pw)) score += 1;
-  return score;
+
+  if (score === 1) return 'weak';
+  if (score === 2) return 'medium';
+  if (score === 3) return 'strong';
+  return '';
 }
 
-/** 강도별 라벨과 CSS 클래스 매핑 */
-const STRENGTH_MAP = {
-  0: { label: '', className: '' },
-  1: { label: '약함', className: 'signup-form__strength--weak' },
-  2: { label: '보통', className: 'signup-form__strength--medium' },
-  3: { label: '강함', className: 'signup-form__strength--strong' },
+/** 강도별 한국어 라벨 매핑 */
+const STRENGTH_LABEL = {
+  weak:   '약함',
+  medium: '보통',
+  strong: '강함',
+  '':     '',
 };
 
 export default function SignUpForm() {
-  // 폼 입력값 상태
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  /* 폼 입력값 상태 */
+  const [email,           setEmail]           = useState('');
+  const [password,        setPassword]        = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
-  const [nickname, setNickname] = useState('');
-  // 필드별 에러 메시지
-  const [errors, setErrors] = useState({});
-  // API 호출 중 상태
+  const [nickname,        setNickname]        = useState('');
+  /* 필드별 에러 메시지 */
+  const [errors,      setErrors]      = useState({});
+  /* API 호출 중 상태 */
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // 서버 에러 메시지
-  const [serverError, setServerError] = useState('');
+  /* 서버 에러 메시지 */
+  const [serverError,  setServerError]  = useState('');
 
-  const login = useAuthStore((s) => s.login);
+  const login    = useAuthStore((s) => s.login);
   const navigate = useNavigate();
 
-  // 비밀번호 강도 계산 (메모이제이션)
+  /* 비밀번호 강도 계산 (메모이제이션) */
   const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
-  const strengthInfo = STRENGTH_MAP[passwordStrength];
 
   /**
    * 폼 전체의 유효성을 검사한다.
@@ -82,19 +89,19 @@ export default function SignUpForm() {
   const validateForm = () => {
     const newErrors = {};
 
-    // 이메일 검증
+    /* 이메일 검증 */
     const emailResult = validateEmail(email);
     if (!emailResult.isValid) newErrors.email = emailResult.message;
 
-    // 비밀번호 검증
+    /* 비밀번호 검증 */
     const passwordResult = validatePassword(password);
     if (!passwordResult.isValid) newErrors.password = passwordResult.message;
 
-    // 비밀번호 확인 검증
+    /* 비밀번호 확인 검증 */
     const confirmResult = validatePasswordConfirm(password, passwordConfirm);
     if (!confirmResult.isValid) newErrors.passwordConfirm = confirmResult.message;
 
-    // 닉네임 검증
+    /* 닉네임 검증 */
     const nicknameResult = validateNickname(nickname);
     if (!nicknameResult.isValid) newErrors.nickname = nicknameResult.message;
 
@@ -117,17 +124,17 @@ export default function SignUpForm() {
     setServerError('');
 
     try {
-      // 회원가입 API 호출
+      /* 회원가입 API 호출 */
       const response = await signupAPI({ email, password, nickname });
 
-      // 가입 성공 시 자동 로그인 처리
+      /* 가입 성공 시 자동 로그인 처리 */
       login({
-        accessToken: response.accessToken,
+        accessToken:  response.accessToken,
         refreshToken: response.refreshToken,
-        user: response.user,
+        user:         response.user,
       });
 
-      // 홈 페이지로 리다이렉트
+      /* 홈 페이지로 리다이렉트 */
       navigate(ROUTES.HOME);
     } catch (err) {
       setServerError(err.message || '회원가입에 실패했습니다. 다시 시도해주세요.');
@@ -137,136 +144,130 @@ export default function SignUpForm() {
   };
 
   return (
-    <form className="signup-form" onSubmit={handleSubmit} noValidate>
+    <S.Form onSubmit={handleSubmit} noValidate>
       {/* 폼 제목 */}
-      <h2 className="signup-form__title">회원가입</h2>
-      <p className="signup-form__subtitle">몽글픽과 함께 영화 취향을 발견하세요</p>
+      <S.Title>회원가입</S.Title>
+      <S.Subtitle>몽글픽과 함께 영화 취향을 발견하세요</S.Subtitle>
 
       {/* 서버 에러 메시지 */}
-      {serverError && (
-        <div className="signup-form__error-banner">{serverError}</div>
-      )}
+      {serverError && <S.ErrorBanner>{serverError}</S.ErrorBanner>}
 
       {/* 이메일 입력 */}
-      <div className="signup-form__field">
-        <label htmlFor="signup-email" className="signup-form__label">이메일</label>
-        <input
+      <S.Field>
+        <S.Label htmlFor="signup-email">이메일</S.Label>
+        <S.Input
           id="signup-email"
           type="email"
-          className={`signup-form__input ${errors.email ? 'signup-form__input--error' : ''}`}
+          $error={!!errors.email}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="example@email.com"
           autoComplete="email"
           disabled={isSubmitting}
         />
-        {errors.email && <span className="signup-form__error">{errors.email}</span>}
-      </div>
+        {errors.email && <S.FieldError>{errors.email}</S.FieldError>}
+      </S.Field>
 
       {/* 닉네임 입력 */}
-      <div className="signup-form__field">
-        <label htmlFor="signup-nickname" className="signup-form__label">닉네임</label>
-        <input
+      <S.Field>
+        <S.Label htmlFor="signup-nickname">닉네임</S.Label>
+        <S.Input
           id="signup-nickname"
           type="text"
-          className={`signup-form__input ${errors.nickname ? 'signup-form__input--error' : ''}`}
+          $error={!!errors.nickname}
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
           placeholder="2~20자, 한글/영문/숫자"
           autoComplete="nickname"
           disabled={isSubmitting}
         />
-        {errors.nickname && <span className="signup-form__error">{errors.nickname}</span>}
-      </div>
+        {errors.nickname && <S.FieldError>{errors.nickname}</S.FieldError>}
+      </S.Field>
 
       {/* 비밀번호 입력 + 강도 표시 바 */}
-      <div className="signup-form__field">
-        <label htmlFor="signup-password" className="signup-form__label">비밀번호</label>
-        <input
+      <S.Field>
+        <S.Label htmlFor="signup-password">비밀번호</S.Label>
+        <S.Input
           id="signup-password"
           type="password"
-          className={`signup-form__input ${errors.password ? 'signup-form__input--error' : ''}`}
+          $error={!!errors.password}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="8자 이상, 영문+숫자 조합"
           autoComplete="new-password"
           disabled={isSubmitting}
         />
-        {/* 비밀번호 강도 표시 바 (입력이 있을 때만) */}
+        {/* 비밀번호 강도 표시 바 — 입력이 있을 때만 렌더링 */}
         {password && (
-          <div className="signup-form__strength-wrap">
-            <div className={`signup-form__strength-bar ${strengthInfo.className}`} />
-            <span className={`signup-form__strength-label ${strengthInfo.className}`}>
-              {strengthInfo.label}
-            </span>
-          </div>
+          <S.StrengthWrap>
+            <S.StrengthBar $strength={passwordStrength} />
+            <S.StrengthLabel $strength={passwordStrength}>
+              {STRENGTH_LABEL[passwordStrength]}
+            </S.StrengthLabel>
+          </S.StrengthWrap>
         )}
-        {errors.password && <span className="signup-form__error">{errors.password}</span>}
-      </div>
+        {errors.password && <S.FieldError>{errors.password}</S.FieldError>}
+      </S.Field>
 
       {/* 비밀번호 확인 입력 */}
-      <div className="signup-form__field">
-        <label htmlFor="signup-password-confirm" className="signup-form__label">비밀번호 확인</label>
-        <input
+      <S.Field>
+        <S.Label htmlFor="signup-password-confirm">비밀번호 확인</S.Label>
+        <S.Input
           id="signup-password-confirm"
           type="password"
-          className={`signup-form__input ${errors.passwordConfirm ? 'signup-form__input--error' : ''}`}
+          $error={!!errors.passwordConfirm}
           value={passwordConfirm}
           onChange={(e) => setPasswordConfirm(e.target.value)}
           placeholder="비밀번호를 다시 입력하세요"
           autoComplete="new-password"
           disabled={isSubmitting}
         />
-        {errors.passwordConfirm && <span className="signup-form__error">{errors.passwordConfirm}</span>}
-      </div>
+        {errors.passwordConfirm && (
+          <S.FieldError>{errors.passwordConfirm}</S.FieldError>
+        )}
+      </S.Field>
 
       {/* 가입 버튼 — 제출 시 "처리 중..." 텍스트 */}
-      <button
-        type="submit"
-        className="signup-form__submit"
-        disabled={isSubmitting}
-      >
+      <S.SubmitButton type="submit" disabled={isSubmitting}>
         {isSubmitting ? '처리 중...' : '가입하기'}
-      </button>
+      </S.SubmitButton>
 
       {/* 소셜 로그인 구분선 */}
-      <div className="signup-form__divider">
-        <span>또는</span>
-      </div>
+      <S.Divider><span>또는</span></S.Divider>
 
       {/* 소셜 로그인 버튼 */}
-      <div className="signup-form__social">
-        <button
+      <S.SocialList>
+        <S.SocialButton
           type="button"
-          className="signup-form__social-btn signup-form__social-btn--google"
+          $provider="google"
           onClick={() => { window.location.href = buildOAuthUrl('google'); }}
           disabled={isSubmitting}
         >
           Google로 시작하기
-        </button>
-        <button
+        </S.SocialButton>
+        <S.SocialButton
           type="button"
-          className="signup-form__social-btn signup-form__social-btn--kakao"
+          $provider="kakao"
           onClick={() => { window.location.href = buildOAuthUrl('kakao'); }}
           disabled={isSubmitting}
         >
           카카오로 시작하기
-        </button>
-        <button
+        </S.SocialButton>
+        <S.SocialButton
           type="button"
-          className="signup-form__social-btn signup-form__social-btn--naver"
+          $provider="naver"
           onClick={() => { window.location.href = buildOAuthUrl('naver'); }}
           disabled={isSubmitting}
         >
           네이버로 시작하기
-        </button>
-      </div>
+        </S.SocialButton>
+      </S.SocialList>
 
-      {/* 로그인 페이지 링크 */}
-      <p className="signup-form__footer">
+      {/* 로그인 페이지 링크 — as={Link}로 react-router-dom 라우팅 유지 */}
+      <S.Footer>
         이미 계정이 있으신가요?{' '}
-        <Link to={ROUTES.LOGIN} className="signup-form__link">로그인</Link>
-      </p>
-    </form>
+        <S.TextLink as={Link} to={ROUTES.LOGIN}>로그인</S.TextLink>
+      </S.Footer>
+    </S.Form>
   );
 }

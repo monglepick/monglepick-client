@@ -15,7 +15,8 @@ import { ROUTES } from '../../../shared/constants/routes';
 import MovieList from '../../../shared/components/MovieList/MovieList';
 /* 인기 영화 API — features/movie에서 가져옴 */
 import { getPopularMovies } from '../../movie/api/movieApi';
-import './HomePage.css';
+/* styled-components — HomePage.styled.js */
+import * as S from './HomePage.styled';
 
 /** 히어로 섹션에 표시할 추천 질문 카드 목록 */
 const SUGGESTION_CARDS = [
@@ -83,80 +84,81 @@ export default function HomePage() {
   };
 
   return (
-    <div className="home-page">
+    <S.Wrapper>
       {/* ── 히어로 섹션 ── */}
-      <section className="home-hero">
-        <div className="home-hero__content">
+      <S.Hero>
+        <S.HeroContent>
           {/* 로고 배지 */}
-          <div className="home-hero__badge">
-            <img src="/mongle-transparent.png" alt="몽글픽" className="home-hero__badge-icon" />
+          <S.HeroBadge>
+            <S.HeroBadgeIcon src="/mongle-transparent.png" alt="몽글픽" />
             <span>AI 영화 추천 서비스</span>
-          </div>
+          </S.HeroBadge>
 
           {/* 메인 타이틀 */}
-          <h1 className="home-hero__title">
+          <S.HeroTitle>
             당신의 취향을 아는
             <br />
-            <span className="home-hero__title-accent">AI 영화 추천</span>
-          </h1>
+            <S.HeroTitleAccent>AI 영화 추천</S.HeroTitleAccent>
+          </S.HeroTitle>
 
           {/* 설명 텍스트 */}
-          <p className="home-hero__desc">
+          <S.HeroDesc>
             기분, 장르, 좋아하는 영화를 말씀해 주세요.
             <br />
             몽글픽 AI가 15만 편 이상의 영화 중에서 딱 맞는 작품을 찾아드립니다.
-          </p>
+          </S.HeroDesc>
 
-          {/* CTA 버튼 */}
-          <div className="home-hero__cta">
-            <Link to={ROUTES.CHAT} className="home-hero__btn home-hero__btn--primary">
+          {/* CTA 버튼 — Link 컴포넌트를 as prop으로 위임 */}
+          <S.HeroCta>
+            <S.HeroBtnPrimary as={Link} to={ROUTES.CHAT}>
               AI에게 추천받기
-            </Link>
-            <Link to={ROUTES.SEARCH} className="home-hero__btn home-hero__btn--secondary">
+            </S.HeroBtnPrimary>
+            <S.HeroBtnSecondary as={Link} to={ROUTES.SEARCH}>
               영화 검색하기
-            </Link>
-          </div>
-        </div>
+            </S.HeroBtnSecondary>
+          </S.HeroCta>
+        </S.HeroContent>
 
         {/* 배경 글로우 효과 */}
-        <div className="home-hero__glow" aria-hidden="true"></div>
+        <S.HeroGlow aria-hidden="true" />
         {/* Floating Orb 배경 장식 */}
-        <div className="home-hero__orb--1" aria-hidden="true"></div>
-        <div className="home-hero__orb--2" aria-hidden="true"></div>
-      </section>
+        <S.HeroOrb1 aria-hidden="true" />
+        <S.HeroOrb2 aria-hidden="true" />
+      </S.Hero>
 
       {/* ── 추천 질문 카드 섹션 ── */}
-      <section className="home-suggestions">
-        <div className="home-suggestions__inner">
-          <h2 className="home-suggestions__title">이런 것도 물어볼 수 있어요</h2>
-          <div className="home-suggestions__grid">
-            {SUGGESTION_CARDS.map((card) => (
-              <button
+      <S.Suggestions>
+        <S.SuggestionsInner>
+          <S.SuggestionsTitle>이런 것도 물어볼 수 있어요</S.SuggestionsTitle>
+          <S.SuggestionsGrid>
+            {SUGGESTION_CARDS.map((card, index) => (
+              <S.SuggestionsCard
                 key={card.title}
-                className="home-suggestions__card"
+                /* $index: 1-based, stagger 딜레이 계산에 사용 */
+                $index={index + 1}
                 onClick={() => handleSuggestionClick(card.query)}
               >
-                <span className="home-suggestions__card-icon">{card.icon}</span>
-                <h3 className="home-suggestions__card-title">{card.title}</h3>
-                <p className="home-suggestions__card-desc">{card.description}</p>
-              </button>
+                <S.CardIcon>{card.icon}</S.CardIcon>
+                <S.CardTitle>{card.title}</S.CardTitle>
+                <S.CardDesc>{card.description}</S.CardDesc>
+              </S.SuggestionsCard>
             ))}
-          </div>
-        </div>
-      </section>
+          </S.SuggestionsGrid>
+        </S.SuggestionsInner>
+      </S.Suggestions>
 
       {/* ── 인기 영화 섹션 ── */}
-      <section className="home-movies">
-        <div className="home-movies__inner">
-          <div className="home-movies__header">
-            <h2 className="home-movies__title">인기 영화</h2>
-            <Link to={ROUTES.SEARCH} className="home-movies__more">
+      <S.Movies>
+        <S.MoviesInner>
+          <S.MoviesHeader>
+            <S.MoviesTitle>인기 영화</S.MoviesTitle>
+            <S.MoviesMore as={Link} to={ROUTES.SEARCH}>
               더 보기 →
-            </Link>
-          </div>
+            </S.MoviesMore>
+          </S.MoviesHeader>
           <MovieList movies={popularMovies} loading={isLoading} />
-        </div>
-      </section>
-    </div>
+        </S.MoviesInner>
+      </S.Movies>
+    </S.Wrapper>
   );
 }

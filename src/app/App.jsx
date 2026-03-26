@@ -62,13 +62,13 @@ import PaymentSuccessPage from '../features/payment/pages/PaymentSuccessPage';
 import PaymentFailPage from '../features/payment/pages/PaymentFailPage';
 /* 고객센터 페이지 — features/support에서 가져옴 */
 import SupportPage from '../features/support/pages/SupportPage';
+/* Movie Match 페이지 — features/match에서 가져옴 (두 영화 교집합 추천) */
+import MatchPage from '../features/match/pages/MatchPage';
 /* 404 에러 페이지 — features/error에서 가져옴 */
 import NotFoundPage from '../features/error/pages/NotFoundPage';
 
 /* 로딩 스피너 — shared/components에서 가져옴 (PrivateRoute 로딩 중 표시용) */
 import Loading from '../shared/components/Loading/Loading';
-/* App 전용 레이아웃 스타일 */
-import './App.css';
 
 /**
  * 인증이 필요한 라우트를 보호하는 래퍼 컴포넌트.
@@ -210,6 +210,16 @@ function App() {
           element={
             <MainLayout>
               <SupportPage />
+            </MainLayout>
+          }
+        />
+
+        {/* Movie Match — 두 영화 교집합 기반 함께 볼 영화 추천 (인증 불필요) */}
+        <Route
+          path="/match"
+          element={
+            <MainLayout>
+              <MatchPage />
             </MainLayout>
           }
         />

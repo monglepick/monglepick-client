@@ -7,12 +7,12 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 /* 인증 Context 훅 — app/providers에서 가져옴 */
 import useAuthStore from '../../stores/useAuthStore';
 /* 라우트 경로 상수 — shared/constants에서 가져옴 */
 import { ROUTES, NAV_ITEMS } from '../../constants/routes';
-import './Header.css';
+import * as S from './Header.styled';
 
 export default function Header() {
   // 현재 경로 — 활성 메뉴 하이라이트에 사용
@@ -56,98 +56,91 @@ export default function Header() {
   };
 
   return (
-    <header className="header">
-      <div className="header__inner">
+    <S.HeaderWrapper>
+      <S.Inner>
         {/* ── 로고 영역 ── */}
-        <Link to={ROUTES.HOME} className="header__logo" onClick={closeMobileMenu}>
-          <img src="/mongle-transparent.png" alt="몽글픽" className="header__logo-icon" />
-          <span className="header__logo-text">몽글픽</span>
-        </Link>
+        <S.LogoLink to={ROUTES.HOME} onClick={closeMobileMenu}>
+          <S.LogoIcon src="/mongle-transparent.png" alt="몽글픽" />
+          <S.LogoText>몽글픽</S.LogoText>
+        </S.LogoLink>
 
         {/* ── 네비게이션 링크 (데스크톱) ── */}
-        <nav className={`header__nav ${isMobileMenuOpen ? 'header__nav--open' : ''}`}>
+        <S.Nav $isOpen={isMobileMenuOpen}>
           {NAV_ITEMS.map((item) => (
-            <Link
+            <S.NavLink
               key={item.path}
               to={item.path}
-              className={`header__nav-link ${
-                location.pathname === item.path ? 'header__nav-link--active' : ''
-              }`}
+              $active={location.pathname === item.path}
               onClick={closeMobileMenu}
             >
               {item.label}
-            </Link>
+            </S.NavLink>
           ))}
 
           {/* ── 인증 버튼 (모바일 메뉴 내부) ── */}
-          <div className="header__auth header__auth--mobile">
+          <S.AuthSection $mobile>
             {isAuthenticated ? (
               <>
-                <Link
+                <S.NavLink
                   to={ROUTES.MYPAGE}
-                  className="header__nav-link"
                   onClick={closeMobileMenu}
                 >
                   마이페이지
-                </Link>
-                <button className="header__auth-btn header__auth-btn--logout" onClick={handleLogout}>
+                </S.NavLink>
+                <S.LogoutBtn onClick={handleLogout}>
                   로그아웃
-                </button>
+                </S.LogoutBtn>
               </>
             ) : (
               <>
-                <Link to={ROUTES.LOGIN} className="header__auth-btn" onClick={closeMobileMenu}>
+                <S.AuthBtn to={ROUTES.LOGIN} onClick={closeMobileMenu}>
                   로그인
-                </Link>
-                <Link
-                  to={ROUTES.SIGNUP}
-                  className="header__auth-btn header__auth-btn--signup"
-                  onClick={closeMobileMenu}
-                >
+                </S.AuthBtn>
+                <S.SignupBtn to={ROUTES.SIGNUP} onClick={closeMobileMenu}>
                   회원가입
-                </Link>
+                </S.SignupBtn>
               </>
             )}
-          </div>
-        </nav>
+          </S.AuthSection>
+        </S.Nav>
 
         {/* ── 인증 버튼 (데스크톱) ── */}
-        <div className="header__auth header__auth--desktop">
+        <S.AuthSection $desktop>
           {isAuthenticated ? (
             <>
-              <Link to={ROUTES.MYPAGE} className="header__user">
-                <span className="header__user-avatar">
+              <S.UserInfo to={ROUTES.MYPAGE}>
+                <S.UserAvatar>
                   {user?.nickname?.charAt(0) || 'U'}
-                </span>
-                <span className="header__user-name">{user?.nickname || '사용자'}</span>
-              </Link>
-              <button className="header__auth-btn header__auth-btn--logout" onClick={handleLogout}>
+                </S.UserAvatar>
+                <S.UserName>{user?.nickname || '사용자'}</S.UserName>
+              </S.UserInfo>
+              <S.LogoutBtn onClick={handleLogout}>
                 로그아웃
-              </button>
+              </S.LogoutBtn>
             </>
           ) : (
             <>
-              <Link to={ROUTES.LOGIN} className="header__auth-btn">
+              <S.AuthBtn to={ROUTES.LOGIN}>
                 로그인
-              </Link>
-              <Link to={ROUTES.SIGNUP} className="header__auth-btn header__auth-btn--signup">
+              </S.AuthBtn>
+              <S.SignupBtn to={ROUTES.SIGNUP}>
                 회원가입
-              </Link>
+              </S.SignupBtn>
             </>
           )}
-        </div>
+        </S.AuthSection>
 
         {/* ── 모바일 햄버거 메뉴 버튼 ── */}
-        <button
-          className={`header__mobile-toggle ${isMobileMenuOpen ? 'header__mobile-toggle--open' : ''}`}
+        <S.MobileToggle
+          $isOpen={isMobileMenuOpen}
           onClick={toggleMobileMenu}
           aria-label="메뉴 열기/닫기"
         >
           <span></span>
           <span></span>
           <span></span>
-        </button>
-      </div>
-    </header>
+        </S.MobileToggle>
+      </S.Inner>
+    </S.HeaderWrapper>
   );
 }

@@ -16,7 +16,7 @@
  *   - card: 영화 포스터 카드 형태 (2:3 비율 + 제목/장르 줄)
  */
 
-import './Skeleton.css';
+import * as S from './Skeleton.styled';
 
 export default function Skeleton({
   width = '100%',
@@ -27,25 +27,22 @@ export default function Skeleton({
   /* card variant는 내부 구조가 있으므로 별도 렌더링 */
   if (variant === 'card') {
     return (
-      <div
-        className="skeleton skeleton--card"
-        style={{ width, borderRadius }}
-      >
+      <S.CardWrapper style={{ width, borderRadius }}>
         {/* 포스터 영역 (2:3 비율) */}
-        <div className="skeleton__card-poster" />
+        <S.CardPoster />
         {/* 정보 영역 (제목 + 장르) */}
-        <div className="skeleton__card-info">
-          <div className="skeleton__card-title" />
-          <div className="skeleton__card-genre" />
-        </div>
-      </div>
+        <S.CardInfo>
+          <S.CardTitle />
+          <S.CardGenre />
+        </S.CardInfo>
+      </S.CardWrapper>
     );
   }
 
   /* text / circular / rectangular 공통 렌더링 */
   return (
-    <div
-      className={`skeleton skeleton--${variant}`}
+    <S.SkeletonBlock
+      $variant={variant}
       style={{
         width,
         height,

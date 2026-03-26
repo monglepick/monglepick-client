@@ -21,7 +21,7 @@
  */
 
 import Loading from '../../../shared/components/Loading/Loading';
-import './FaqTab.css';
+import * as S from './FaqTab.styled';
 
 export default function FaqTab({
   faqs,
@@ -48,7 +48,7 @@ export default function FaqTab({
     >
       <h2 className="support-page__section-title">자주 묻는 질문</h2>
 
-      {/* 카테고리 필터 탭 */}
+      {/* 카테고리 필터 탭 — SupportPage.css의 공통 클래스 사용 */}
       <div className="support-page__category-tabs" role="group" aria-label="FAQ 카테고리 필터">
         {categoryFilters.map((cat, idx) => (
           <button
@@ -66,19 +66,16 @@ export default function FaqTab({
       </div>
 
       {/* 검색 바 */}
-      <div className="faq-tab__search">
-        <span className="faq-tab__search-icon" aria-hidden="true">
-          &#128269;
-        </span>
-        <input
+      <S.SearchBar>
+        <S.SearchIcon aria-hidden="true">&#128269;</S.SearchIcon>
+        <S.SearchInput
           type="text"
-          className="faq-tab__search-input"
           placeholder="FAQ 검색..."
           value={searchKeyword}
           onChange={(e) => onSearchChange(e.target.value)}
           aria-label="FAQ 검색"
         />
-      </div>
+      </S.SearchBar>
 
       {/* FAQ 목록 */}
       {isLoading ? (
@@ -93,87 +90,65 @@ export default function FaqTab({
           </p>
         </div>
       ) : (
-        <div className="faq-tab__list" role="list">
+        <S.List role="list">
           {faqs.map((faq) => {
             const isOpen = openFaqIds.has(faq.id);
             const feedbackState = feedbackMap[faq.id];
 
             return (
-              <div key={faq.id} className="faq-tab__item" role="listitem">
+              <S.Item key={faq.id} role="listitem">
                 {/* FAQ 질문 (아코디언 헤더) */}
-                <button
-                  className="faq-tab__question"
+                <S.Question
                   onClick={() => onToggleFaq(faq.id)}
                   aria-expanded={isOpen}
                   aria-controls={`faq-answer-${faq.id}`}
                 >
-                  <span className="faq-tab__category-badge">
+                  <S.CategoryBadge>
                     {categoryLabelMap[faq.category] || faq.category}
-                  </span>
-                  <span className="faq-tab__question-text">
-                    {faq.question}
-                  </span>
-                  <span
-                    className={[
-                      'faq-tab__toggle',
-                      isOpen ? 'faq-tab__toggle--open' : '',
-                    ].join(' ')}
-                    aria-hidden="true"
-                  >
+                  </S.CategoryBadge>
+                  <S.QuestionText>{faq.question}</S.QuestionText>
+                  <S.Toggle $isOpen={isOpen} aria-hidden="true">
                     &#9660;
-                  </span>
-                </button>
+                  </S.Toggle>
+                </S.Question>
 
                 {/* FAQ 답변 (아코디언 패널) */}
                 {isOpen && (
-                  <div
+                  <S.Answer
                     id={`faq-answer-${faq.id}`}
-                    className="faq-tab__answer"
                     role="region"
                     aria-label={`${faq.question} 답변`}
                   >
-                    <p className="faq-tab__answer-text">{faq.answer}</p>
+                    <S.AnswerText>{faq.answer}</S.AnswerText>
 
                     {/* 피드백 버튼 (인증 사용자만) */}
                     {isAuthenticated && (
-                      <div className="faq-tab__feedback">
-                        <span className="faq-tab__feedback-label">
-                          도움이 되었나요?
-                        </span>
-                        <button
-                          className={[
-                            'faq-tab__feedback-btn',
-                            feedbackState === 'helpful'
-                              ? 'faq-tab__feedback-btn--selected'
-                              : '',
-                          ].join(' ')}
+                      <S.Feedback>
+                        <S.FeedbackLabel>도움이 되었나요?</S.FeedbackLabel>
+                        <S.FeedbackBtn
+                          $selected={feedbackState === 'helpful'}
                           onClick={() => onFeedback(faq.id, true)}
                           disabled={!!feedbackState || feedbackLoadingId === faq.id}
                           aria-label="도움이 되었습니다"
                         >
                           &#128077; 네
-                        </button>
-                        <button
-                          className={[
-                            'faq-tab__feedback-btn',
-                            feedbackState === 'notHelpful'
-                              ? 'faq-tab__feedback-btn--selected'
-                              : '',
-                          ].join(' ')}
+                        </S.FeedbackBtn>
+                        <S.FeedbackBtn
+                          $selected={feedbackState === 'notHelpful'}
                           onClick={() => onFeedback(faq.id, false)}
                           disabled={!!feedbackState || feedbackLoadingId === faq.id}
                           aria-label="도움이 되지 않았습니다"
                         >
                           &#128078; 아니요
-                        </button>
-                      </div>
+                        </S.FeedbackBtn>
+                      </S.Feedback>
                     )}
-                  </div>
+                  </S.Answer>
                 )}
-              </div>
+              </S.Item>
             );
           })}
-        </div>
+        </S.List>
       )}
     </section>
   );

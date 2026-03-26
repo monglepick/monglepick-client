@@ -24,7 +24,8 @@ import { useState } from 'react';
 /* 포맷팅 유틸 — shared/utils에서 가져옴 */
 /* formatGenres: 장르 태그는 movie.genres 배열을 직접 순회하므로 미사용 */
 import { formatRating, formatRatingStars, formatRuntime, formatDate } from '../../../shared/utils/formatters';
-import './MovieDetailCard.css';
+/* styled-components — MovieDetailCard.styled.js */
+import * as S from './MovieDetailCard.styled';
 
 export default function MovieDetailCard({ movie, onWishlistToggle, isWishlisted = false }) {
   // 줄거리 펼치기/접기 상태
@@ -60,201 +61,191 @@ export default function MovieDetailCard({ movie, onWishlistToggle, isWishlisted 
   const youtubeId = getYouTubeId(movie.trailer_url);
 
   return (
-    <article className="movie-detail">
+    <S.Wrapper>
       {/* ── 상단: 포스터 + 기본 정보 ── */}
-      <div className="movie-detail__top">
+      <S.Top>
         {/* 포스터 */}
-        <div className="movie-detail__poster">
+        <S.Poster>
           {movie.poster_path || movie.posterUrl ? (
             <>
               {/* 포스터 로딩 전 Skeleton */}
-              {!posterLoaded && (
-                <div className="movie-detail__poster-skeleton" />
-              )}
-              <img
+              {!posterLoaded && <S.PosterSkeleton />}
+              <S.PosterImg
                 src={movie.poster_path || movie.posterUrl}
                 alt={`${movie.title} 포스터`}
-                className={`movie-detail__poster-img ${posterLoaded ? '' : 'movie-detail__poster-img--loading'}`}
+                /* $isLoading=true 이면 투명+절대 위치로 Skeleton 뒤에 숨김 */
+                $isLoading={!posterLoaded}
                 onLoad={() => setPosterLoaded(true)}
               />
             </>
           ) : (
-            <div className="movie-detail__poster-placeholder">
-              <span className="movie-detail__poster-placeholder-icon">🎬</span>
+            <S.PosterPlaceholder>
+              <S.PosterPlaceholderIcon>🎬</S.PosterPlaceholderIcon>
               <span>포스터 없음</span>
-            </div>
+            </S.PosterPlaceholder>
           )}
-        </div>
+        </S.Poster>
 
         {/* 기본 정보 */}
-        <div className="movie-detail__info">
+        <S.Info>
           {/* 제목 */}
-          <h1 className="movie-detail__title">{movie.title || movie.title_ko}</h1>
+          <S.Title>{movie.title || movie.title_ko}</S.Title>
 
           {/* 원제 (한국어 제목과 다를 때) */}
           {movie.original_title && movie.original_title !== movie.title && (
-            <p className="movie-detail__original-title">{movie.original_title}</p>
+            <S.OriginalTitle>{movie.original_title}</S.OriginalTitle>
           )}
 
           {/* 평점 */}
-          <div className="movie-detail__rating">
-            <span className="movie-detail__rating-stars">
+          <S.Rating>
+            <S.RatingStars>
               {formatRatingStars(movie.rating || movie.vote_average)}
-            </span>
-            <span className="movie-detail__rating-value">
+            </S.RatingStars>
+            <S.RatingValue>
               {formatRating(movie.rating || movie.vote_average)}
-            </span>
+            </S.RatingValue>
             {movie.vote_count && (
-              <span className="movie-detail__rating-count">
+              <S.RatingCount>
                 ({movie.vote_count.toLocaleString()}명)
-              </span>
+              </S.RatingCount>
             )}
-          </div>
+          </S.Rating>
 
           {/* 메타 정보 (개봉일, 러닝타임, 관람등급) */}
-          <div className="movie-detail__meta">
+          <S.Meta>
             {movie.release_date && (
-              <span className="movie-detail__meta-item">
-                {formatDate(movie.release_date)} 개봉
-              </span>
+              <S.MetaItem>{formatDate(movie.release_date)} 개봉</S.MetaItem>
             )}
             {movie.runtime && (
-              <span className="movie-detail__meta-item">
-                {formatRuntime(movie.runtime)}
-              </span>
+              <S.MetaItem>{formatRuntime(movie.runtime)}</S.MetaItem>
             )}
             {movie.certification && (
-              <span className="movie-detail__meta-item movie-detail__certification">
-                {movie.certification}
-              </span>
+              <S.Certification>{movie.certification}</S.Certification>
             )}
-          </div>
+          </S.Meta>
 
           {/* 장르 태그 */}
           {movie.genres && movie.genres.length > 0 && (
-            <div className="movie-detail__genres">
+            <S.Genres>
               {movie.genres.map((genre) => (
-                <span key={typeof genre === 'string' ? genre : (genre.name || genre.id)} className="movie-detail__genre-tag">
+                <S.GenreTag
+                  key={typeof genre === 'string' ? genre : (genre.name || genre.id)}
+                >
                   {typeof genre === 'string' ? genre : genre.name}
-                </span>
+                </S.GenreTag>
               ))}
-            </div>
+            </S.Genres>
           )}
 
           {/* 감독 */}
           {movie.director && (
-            <div className="movie-detail__director">
-              <span className="movie-detail__label">감독</span>
+            <S.Director>
+              <S.Label>감독</S.Label>
               <span>{movie.director}</span>
-            </div>
+            </S.Director>
           )}
 
           {/* 액션 버튼 */}
-          <div className="movie-detail__actions">
+          <S.Actions>
             {/* 위시리스트 버튼 */}
             {onWishlistToggle && (
-              <button
-                className={`movie-detail__btn movie-detail__btn--wishlist ${isWishlisted ? 'movie-detail__btn--wishlisted' : ''}`}
+              <S.WishlistBtn
+                /* $wishlisted: transient prop — DOM에 전달되지 않음 */
+                $wishlisted={isWishlisted}
                 onClick={() => onWishlistToggle(movie.id)}
               >
                 {isWishlisted ? '♥ 위시리스트에 추가됨' : '♡ 위시리스트에 추가'}
-              </button>
+              </S.WishlistBtn>
             )}
 
             {/* 트레일러 버튼 */}
             {youtubeId && (
-              <button
-                className="movie-detail__btn movie-detail__btn--trailer"
-                onClick={() => setShowTrailer((prev) => !prev)}
-              >
+              <S.TrailerBtn onClick={() => setShowTrailer((prev) => !prev)}>
                 {showTrailer ? '트레일러 닫기' : '▶ 트레일러 보기'}
-              </button>
+              </S.TrailerBtn>
             )}
-          </div>
-        </div>
-      </div>
+          </S.Actions>
+        </S.Info>
+      </S.Top>
 
       {/* ── 트레일러 (YouTube 임베드) ── */}
       {showTrailer && youtubeId && (
-        <div className="movie-detail__trailer">
-          <iframe
+        <S.Trailer>
+          <S.TrailerIframe
             src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1`}
             title="트레일러"
-            className="movie-detail__trailer-iframe"
             frameBorder="0"
             sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
-        </div>
+        </S.Trailer>
       )}
 
       {/* ── 줄거리 ── */}
       {movie.overview && (
-        <div className="movie-detail__section">
-          <h2 className="movie-detail__section-title">줄거리</h2>
-          <p className={`movie-detail__overview-text ${isOverviewExpanded ? '' : 'movie-detail__overview-text--collapsed'}`}>
+        <S.Section>
+          <S.SectionTitle>줄거리</S.SectionTitle>
+          {/* $collapsed: true 이면 4줄 말줄임표, false 이면 전체 표시 */}
+          <S.OverviewText $collapsed={!isOverviewExpanded}>
             {movie.overview}
-          </p>
+          </S.OverviewText>
           {movie.overview.length > 200 && (
-            <button className="movie-detail__overview-toggle" onClick={toggleOverview}>
+            <S.OverviewToggle onClick={toggleOverview}>
               {isOverviewExpanded ? '접기' : '더 보기'}
-            </button>
+            </S.OverviewToggle>
           )}
-        </div>
+        </S.Section>
       )}
 
       {/* ── 추천 이유 (있는 경우) ── */}
       {movie.recommendation_reason && (
-        <div className="movie-detail__section">
-          <h2 className="movie-detail__section-title">추천 이유</h2>
-          <blockquote className="movie-detail__recommendation">
-            {movie.recommendation_reason}
-          </blockquote>
-        </div>
+        <S.Section>
+          <S.SectionTitle>추천 이유</S.SectionTitle>
+          <S.Recommendation>{movie.recommendation_reason}</S.Recommendation>
+        </S.Section>
       )}
 
       {/* ── 출연진 ── */}
       {movie.cast && movie.cast.length > 0 && (
-        <div className="movie-detail__section">
-          <h2 className="movie-detail__section-title">출연진</h2>
-          <div className="movie-detail__cast-list">
+        <S.Section>
+          <S.SectionTitle>출연진</S.SectionTitle>
+          <S.CastList>
             {movie.cast.slice(0, 10).map((actor) => (
-              <div key={actor.id || actor.name} className="movie-detail__cast-item">
-                <div className="movie-detail__cast-avatar">
+              <S.CastItem key={actor.id || actor.name}>
+                <S.CastAvatar>
                   {actor.profile_path ? (
                     <img src={actor.profile_path} alt={actor.name} />
                   ) : (
                     <span>{actor.name?.charAt(0)}</span>
                   )}
-                </div>
-                <span className="movie-detail__cast-name">{actor.name}</span>
+                </S.CastAvatar>
+                <S.CastName>{actor.name}</S.CastName>
                 {actor.character && (
-                  <span className="movie-detail__cast-character">{actor.character}</span>
+                  <S.CastCharacter>{actor.character}</S.CastCharacter>
                 )}
-              </div>
+              </S.CastItem>
             ))}
-          </div>
-        </div>
+          </S.CastList>
+        </S.Section>
       )}
 
       {/* ── OTT 플랫폼 ── */}
       {movie.ott_platforms && movie.ott_platforms.length > 0 && (
-        <div className="movie-detail__section">
-          <h2 className="movie-detail__section-title">시청 가능한 곳</h2>
-          <div className="movie-detail__ott-list">
+        <S.Section>
+          <S.SectionTitle>시청 가능한 곳</S.SectionTitle>
+          <S.OttList>
             {movie.ott_platforms.map((platform) => (
-              <span
+              <S.OttTag
                 key={platform}
-                className="movie-detail__ott-tag"
                 title={`${platform}에서 시청 가능`}
               >
                 {platform}
-              </span>
+              </S.OttTag>
             ))}
-          </div>
-        </div>
+          </S.OttList>
+        </S.Section>
       )}
-    </article>
+    </S.Wrapper>
   );
 }

@@ -14,7 +14,7 @@
  */
 
 import Loading from '../../../shared/components/Loading/Loading';
-import './SubscriptionStatus.css';
+import * as S from './SubscriptionStatus.styled';
 
 export default function SubscriptionStatus({
   subscriptionStatus,
@@ -31,72 +31,62 @@ export default function SubscriptionStatus({
   /* 구독 없음 */
   if (!hasActiveSubscription) {
     return (
-      <div className="subscription-status__empty">
-        <p className="subscription-status__empty-text">
+      <S.EmptyWrapper>
+        <S.EmptyText>
           현재 활성화된 구독이 없습니다.
-        </p>
-        <p className="subscription-status__empty-hint">
+        </S.EmptyText>
+        <S.EmptyHint>
           위 구독 상품을 선택하여 더 많은 혜택을 받아보세요!
-        </p>
-      </div>
+        </S.EmptyHint>
+      </S.EmptyWrapper>
     );
   }
 
   /* 활성 구독 정보 표시 */
   return (
-    <div className="subscription-status__card">
+    <S.Card>
       {/* 구독 정보 */}
-      <div className="subscription-status__info">
-        <div className="subscription-status__field">
-          <span className="subscription-status__label">구독 상품</span>
-          <span className="subscription-status__value">
+      <S.InfoList>
+        <S.Field>
+          <S.Label>구독 상품</S.Label>
+          <S.Value>
             {subscriptionStatus?.planName || '-'}
-          </span>
-        </div>
-        <div className="subscription-status__field">
-          <span className="subscription-status__label">상태</span>
-          <span
-            className="subscription-status__value"
-            style={{
-              color:
-                subscriptionStatus?.status === 'ACTIVE'
-                  ? 'var(--success)'
-                  : subscriptionStatus?.status === 'CANCELLED'
-                    ? 'var(--warning)'
-                    : 'var(--text-secondary)',
-            }}
-          >
+          </S.Value>
+        </S.Field>
+        <S.Field>
+          <S.Label>상태</S.Label>
+          {/* $status prop으로 상태별 색상 적용 (인라인 스타일 제거) */}
+          <S.Value $status={subscriptionStatus?.status}>
             {subscriptionStatus?.status === 'ACTIVE'
               ? '구독 중'
               : subscriptionStatus?.status === 'CANCELLED'
                 ? '취소됨 (만료일까지 이용 가능)'
                 : subscriptionStatus?.status || '-'}
-          </span>
-        </div>
-        <div className="subscription-status__field">
-          <span className="subscription-status__label">시작일</span>
-          <span className="subscription-status__value">
+          </S.Value>
+        </S.Field>
+        <S.Field>
+          <S.Label>시작일</S.Label>
+          <S.Value>
             {formatDate(subscriptionStatus?.startedAt || subscriptionStatus?.startDate)}
-          </span>
-        </div>
-        <div className="subscription-status__field">
-          <span className="subscription-status__label">만료일</span>
-          <span className="subscription-status__value">
+          </S.Value>
+        </S.Field>
+        <S.Field>
+          <S.Label>만료일</S.Label>
+          <S.Value>
             {formatDate(subscriptionStatus?.expiresAt || subscriptionStatus?.endDate)}
-          </span>
-        </div>
-      </div>
+          </S.Value>
+        </S.Field>
+      </S.InfoList>
 
       {/* 구독 취소 버튼 — ACTIVE 상태에서만 표시 */}
       {subscriptionStatus?.status === 'ACTIVE' && (
-        <button
-          className="subscription-status__cancel-btn"
+        <S.CancelButton
           onClick={onCancel}
           disabled={isCancelling}
         >
           {isCancelling ? '취소 처리 중...' : '구독 취소'}
-        </button>
+        </S.CancelButton>
       )}
-    </div>
+    </S.Card>
   );
 }

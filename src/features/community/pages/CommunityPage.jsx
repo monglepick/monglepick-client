@@ -24,7 +24,7 @@ import PostList from '../components/PostList';
 import PostForm from '../components/PostForm';
 /* 빈 상태 컴포넌트 — shared/components에서 가져옴 */
 import EmptyState from '../../../shared/components/EmptyState/EmptyState';
-import './CommunityPage.css';
+import * as S from './CommunityPage.styled';
 
 /** 탭 정의 */
 const TABS = [
@@ -88,29 +88,29 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="community-page">
-      <div className="community-page__inner">
+    <S.PageWrapper>
+      <S.PageInner>
         {/* 페이지 헤더 */}
-        <div className="community-page__header">
-          <h1 className="community-page__title">커뮤니티</h1>
-          <p className="community-page__desc">영화에 대한 이야기를 나눠보세요</p>
-        </div>
+        <S.Header>
+          <S.Title>커뮤니티</S.Title>
+          <S.Desc>영화에 대한 이야기를 나눠보세요</S.Desc>
+        </S.Header>
 
-        {/* 탭 네비게이션 — 활성 탭에 그라데이션 하단 바 */}
-        <div className="community-page__tabs">
+        {/* 탭 네비게이션 — 활성 탭에 gradient 하단 바 */}
+        <S.Tabs>
           {TABS.map((tab) => (
-            <button
+            <S.Tab
               key={tab.id}
-              className={`community-page__tab ${activeTab === tab.id ? 'community-page__tab--active' : ''}`}
+              $active={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.label}
-            </button>
+            </S.Tab>
           ))}
-        </div>
+        </S.Tabs>
 
-        {/* 탭 콘텐츠 — fade-in 애니메이션 적용 */}
-        <div className="community-page__content" key={activeTab}>
+        {/* 탭 콘텐츠 — key 변경 시 fadeIn 재실행 */}
+        <S.Content key={activeTab}>
           {activeTab === 'posts' && (
             <>
               {/* 글 작성 폼 */}
@@ -134,19 +134,18 @@ export default function CommunityPage() {
               description="영화 상세 페이지에서 리뷰를 작성할 수 있습니다"
             />
           )}
-        </div>
-      </div>
+        </S.Content>
+      </S.PageInner>
 
       {/* FAB (Floating Action Button) — 인증된 사용자가 게시글 탭에서만 표시 */}
       {isAuthenticated && activeTab === 'posts' && !showForm && (
-        <button
-          className="community-page__fab"
+        <S.Fab
           onClick={() => setShowForm(true)}
           aria-label="새 글 작성"
         >
           +
-        </button>
+        </S.Fab>
       )}
-    </div>
+    </S.PageWrapper>
   );
 }

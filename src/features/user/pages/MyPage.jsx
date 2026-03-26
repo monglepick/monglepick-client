@@ -33,7 +33,7 @@ import MovieList from '../../../shared/components/MovieList/MovieList';
 import Loading from '../../../shared/components/Loading/Loading';
 /* 빈 상태 컴포넌트 — shared/components에서 가져옴 */
 import EmptyState from '../../../shared/components/EmptyState/EmptyState';
-import './MyPage.css';
+import * as S from './MyPage.styled';
 
 /** 탭 정의 */
 const TABS = [
@@ -109,89 +109,89 @@ export default function MyPagePage() {
   }
 
   return (
-    <div className="mypage">
-      <div className="mypage__inner">
+    <S.Wrapper>
+      <S.Inner>
         {/* 페이지 헤더 — 프로필 카드 (glassmorphism) */}
-        <div className="mypage__header">
+        <S.Header>
           {/* 아바타 — 그라데이션 테두리 */}
-          <div className="mypage__avatar-wrap">
-            <div className="mypage__avatar">
+          <S.AvatarWrap>
+            <S.Avatar>
               {user?.nickname?.charAt(0) || 'U'}
-            </div>
-          </div>
-          <div className="mypage__user-info">
-            <div className="mypage__name-row">
-              <h1 className="mypage__nickname">{user?.nickname || '사용자'}</h1>
+            </S.Avatar>
+          </S.AvatarWrap>
+          <S.UserInfo>
+            <S.NameRow>
+              <S.Nickname>{user?.nickname || '사용자'}</S.Nickname>
               {/* 등급 배지 */}
-              <span className="mypage__grade-badge">{profile?.grade || user?.grade || 'BRONZE'}</span>
-            </div>
-            <p className="mypage__email">{user?.email || ''}</p>
+              <S.GradeBadge>{profile?.grade || user?.grade || 'BRONZE'}</S.GradeBadge>
+            </S.NameRow>
+            <S.Email>{user?.email || ''}</S.Email>
             {/* 프로필 편집 버튼 (UI만) */}
-            <button className="mypage__edit-btn">
+            <S.EditBtn>
               ✏️ 프로필 수정
-            </button>
-          </div>
-        </div>
+            </S.EditBtn>
+          </S.UserInfo>
+        </S.Header>
 
         {/* 탭 네비게이션 — 그라데이션 하단 바 */}
-        <div className="mypage__tabs" role="tablist" aria-label="마이페이지 탭">
+        <S.Tabs role="tablist" aria-label="마이페이지 탭">
           {TABS.map((tab) => (
-            <button
+            <S.Tab
               key={tab.id}
               role="tab"
               aria-selected={activeTab === tab.id}
               aria-controls={`mypage-panel-${tab.id}`}
-              className={`mypage__tab ${activeTab === tab.id ? 'mypage__tab--active' : ''}`}
+              $active={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.label}
-            </button>
+            </S.Tab>
           ))}
-        </div>
+        </S.Tabs>
 
         {/* 에러 메시지 */}
         {error && (
-          <div className="mypage__error" role="alert">
+          <S.ErrorBar role="alert">
             {error}
-            <button className="mypage__error-close" onClick={() => setError(null)}>닫기</button>
-          </div>
+            <S.ErrorClose onClick={() => setError(null)}>닫기</S.ErrorClose>
+          </S.ErrorBar>
         )}
 
-        {/* 탭 콘텐츠 — fade-in 애니메이션 */}
-        <div className="mypage__content" key={activeTab}>
+        {/* 탭 콘텐츠 — fadeInUp 애니메이션 */}
+        <S.Content key={activeTab}>
           {/* 프로필 탭 */}
           {activeTab === 'profile' && (
-            <div className="mypage__profile">
+            <div>
               {isLoading ? (
                 <Loading message="프로필 로딩 중..." />
               ) : (
-                <div className="mypage__profile-card">
-                  <div className="mypage__profile-field">
-                    <span className="mypage__profile-label">닉네임</span>
-                    <span className="mypage__profile-value">
+                <S.ProfileCard>
+                  <S.ProfileField>
+                    <S.ProfileLabel>닉네임</S.ProfileLabel>
+                    <S.ProfileValue>
                       {profile?.nickname || user?.nickname || '-'}
-                    </span>
-                  </div>
-                  <div className="mypage__profile-field">
-                    <span className="mypage__profile-label">이메일</span>
-                    <span className="mypage__profile-value">
+                    </S.ProfileValue>
+                  </S.ProfileField>
+                  <S.ProfileField>
+                    <S.ProfileLabel>이메일</S.ProfileLabel>
+                    <S.ProfileValue>
                       {profile?.email || user?.email || '-'}
-                    </span>
-                  </div>
-                  <div className="mypage__profile-field">
-                    <span className="mypage__profile-label">가입일</span>
-                    <span className="mypage__profile-value">
+                    </S.ProfileValue>
+                  </S.ProfileField>
+                  <S.ProfileField>
+                    <S.ProfileLabel>가입일</S.ProfileLabel>
+                    <S.ProfileValue>
                       {profile?.createdAt || '-'}
-                    </span>
-                  </div>
-                </div>
+                    </S.ProfileValue>
+                  </S.ProfileField>
+                </S.ProfileCard>
               )}
             </div>
           )}
 
           {/* 시청 이력 탭 */}
           {activeTab === 'history' && (
-            <div className="mypage__history">
+            <div>
               {!isLoading && watchHistory.length === 0 ? (
                 <EmptyState
                   icon="🎬"
@@ -212,7 +212,7 @@ export default function MyPagePage() {
 
           {/* 위시리스트 탭 */}
           {activeTab === 'wishlist' && (
-            <div className="mypage__wishlist">
+            <div>
               {!isLoading && wishlist.length === 0 ? (
                 <EmptyState
                   icon="💝"
@@ -233,27 +233,28 @@ export default function MyPagePage() {
 
           {/* 선호 설정 탭 */}
           {activeTab === 'preferences' && (
-            <div className="mypage__preferences">
-              <div className="mypage__preferences-card">
-                <h3 className="mypage__preferences-title">선호 장르</h3>
-                <p className="mypage__preferences-hint">
+            <div>
+              <S.PreferencesCard>
+                <S.PreferencesTitle>선호 장르</S.PreferencesTitle>
+                <S.PreferencesHint>
                   좋아하는 장르를 선택하면 더 정확한 추천을 받을 수 있습니다.
-                  <br /><span style={{ fontSize: '0.85em', color: 'var(--text-muted)' }}>이 기능은 준비 중입니다.</span>
-                </p>
-                <div className="mypage__preferences-tags">
+                  <br />
+                  <span style={{ fontSize: '0.85em' }}>이 기능은 준비 중입니다.</span>
+                </S.PreferencesHint>
+                <S.PreferencesTags>
                   {['액션', '코미디', '드라마', '로맨스', 'SF', '스릴러', '공포', '애니메이션', '판타지', '범죄', '다큐멘터리', '가족'].map(
                     (genre) => (
-                      <button key={genre} className="mypage__preferences-tag" disabled title="준비 중">
+                      <S.PreferencesTag key={genre} disabled title="준비 중">
                         {genre}
-                      </button>
+                      </S.PreferencesTag>
                     ),
                   )}
-                </div>
-              </div>
+                </S.PreferencesTags>
+              </S.PreferencesCard>
             </div>
           )}
-        </div>
-      </div>
-    </div>
+        </S.Content>
+      </S.Inner>
+    </S.Wrapper>
   );
 }
