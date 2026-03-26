@@ -13,7 +13,7 @@
  */
 
 import Loading from '../../../shared/components/Loading/Loading';
-import './AttendanceCalendar.css';
+import * as S from './AttendanceCalendar.styled';
 
 /** 요일 라벨 (달력 그리드 헤더용) */
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -74,58 +74,52 @@ export default function AttendanceCalendar({
       {isLoading ? (
         <Loading message="출석 현황 로딩 중..." />
       ) : (
-        <div className="point-page__attendance-content">
+        <S.AttendanceContent>
           {/* 출석 통계 */}
-          <div className="point-page__attendance-stats">
-            <div className="point-page__attendance-stat">
-              <span className="point-page__attendance-stat-value">
+          <S.AttendanceStats>
+            <S.AttendanceStat>
+              <S.AttendanceStatValue>
                 {attendanceStatus?.currentStreak || 0}일
-              </span>
-              <span className="point-page__attendance-stat-label">연속 출석</span>
-            </div>
-            <div className="point-page__attendance-stat">
-              <span className="point-page__attendance-stat-value">
+              </S.AttendanceStatValue>
+              <S.AttendanceStatLabel>연속 출석</S.AttendanceStatLabel>
+            </S.AttendanceStat>
+            <S.AttendanceStat>
+              <S.AttendanceStatValue>
                 {attendanceStatus?.totalDays || 0}일
-              </span>
-              <span className="point-page__attendance-stat-label">총 출석</span>
-            </div>
-          </div>
+              </S.AttendanceStatValue>
+              <S.AttendanceStatLabel>총 출석</S.AttendanceStatLabel>
+            </S.AttendanceStat>
+          </S.AttendanceStats>
 
           {/* 보너스 안내 */}
-          <div className="point-page__attendance-bonus-info">
-            <span className="point-page__attendance-bonus-tag">기본 10P</span>
-            <span className="point-page__attendance-bonus-tag point-page__attendance-bonus-tag--highlight">
-              7일 연속 30P
-            </span>
-            <span className="point-page__attendance-bonus-tag point-page__attendance-bonus-tag--premium">
-              30일 연속 60P
-            </span>
-          </div>
+          <S.BonusInfo>
+            <S.BonusTag>기본 10P</S.BonusTag>
+            <S.BonusTag $variant="highlight">7일 연속 30P</S.BonusTag>
+            <S.BonusTag $variant="premium">30일 연속 60P</S.BonusTag>
+          </S.BonusInfo>
 
           {/* 달력 그리드 */}
-          <div className="point-page__calendar">
+          <S.Calendar>
             {/* 달력 헤더 — 현재 월 표시 */}
-            <div className="point-page__calendar-header">
-              <span className="point-page__calendar-month">
+            <S.CalendarHeader>
+              <S.CalendarMonth>
                 {currentYear}년 {currentMonth}월
-              </span>
-            </div>
+              </S.CalendarMonth>
+            </S.CalendarHeader>
 
             {/* 요일 라벨 */}
-            <div className="point-page__calendar-weekdays">
+            <S.CalendarWeekdays>
               {WEEKDAY_LABELS.map((label) => (
-                <div key={label} className="point-page__calendar-weekday">
-                  {label}
-                </div>
+                <S.CalendarWeekday key={label}>{label}</S.CalendarWeekday>
               ))}
-            </div>
+            </S.CalendarWeekdays>
 
             {/* 날짜 셀 */}
-            <div className="point-page__calendar-grid">
+            <S.CalendarGrid>
               {calendarGrid.map((cell, idx) => {
                 /* 빈 셀 (이전/다음 달) */
                 if (!cell.day) {
-                  return <div key={`empty-${idx}`} className="point-page__calendar-cell point-page__calendar-cell--empty" />;
+                  return <S.CalendarCell key={`empty-${idx}`} $isEmpty />;
                 }
 
                 /* 출석 여부 */
@@ -134,44 +128,37 @@ export default function AttendanceCalendar({
                 const isToday = cell.dateStr === todayStr;
 
                 return (
-                  <div
+                  <S.CalendarCell
                     key={cell.dateStr}
-                    className={[
-                      'point-page__calendar-cell',
-                      isChecked ? 'point-page__calendar-cell--checked' : '',
-                      isToday ? 'point-page__calendar-cell--today' : '',
-                    ].join(' ')}
+                    $isChecked={isChecked}
+                    $isToday={isToday}
                   >
-                    <span className="point-page__calendar-day">{cell.day}</span>
+                    <S.CalendarDay>{cell.day}</S.CalendarDay>
                     {isChecked && (
-                      <span className="point-page__calendar-check-icon" aria-label="출석 완료">
+                      <S.CalendarCheckIcon aria-label="출석 완료">
                         &#10003;
-                      </span>
+                      </S.CalendarCheckIcon>
                     )}
-                  </div>
+                  </S.CalendarCell>
                 );
               })}
-            </div>
-          </div>
+            </S.CalendarGrid>
+          </S.Calendar>
 
           {/* 출석 체크 결과 애니메이션 */}
           {attendanceResult && (
-            <div className="point-page__attendance-result" role="status">
-              <span className="point-page__attendance-result-points">
+            <S.AttendanceResult role="status">
+              <S.AttendanceResultPoints>
                 +{attendanceResult.earnedPoints}P
-              </span>
-              <span className="point-page__attendance-result-text">
+              </S.AttendanceResultPoints>
+              <S.AttendanceResultText>
                 {attendanceResult.streakCount}일 연속 출석!
-              </span>
-            </div>
+              </S.AttendanceResultText>
+            </S.AttendanceResult>
           )}
 
           {/* 출석 체크 버튼 */}
-          <button
-            className={[
-              'point-page__attendance-btn',
-              attendanceStatus?.checkedToday ? 'point-page__attendance-btn--disabled' : '',
-            ].join(' ')}
+          <S.AttendanceButton
             onClick={onCheckAttendance}
             disabled={attendanceStatus?.checkedToday || isCheckingAttendance}
           >
@@ -180,8 +167,8 @@ export default function AttendanceCalendar({
               : attendanceStatus?.checkedToday
                 ? '오늘 출석 완료'
                 : '출석 체크'}
-          </button>
-        </div>
+          </S.AttendanceButton>
+        </S.AttendanceContent>
       )}
     </section>
   );

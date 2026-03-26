@@ -16,7 +16,7 @@
  */
 
 import Loading from '../../../shared/components/Loading/Loading';
-import './HelpTab.css';
+import * as S from './HelpTab.styled';
 
 export default function HelpTab({
   articles,
@@ -57,23 +57,22 @@ export default function HelpTab({
 
       {/* 도움말 상세 패널 (열려있을 때) */}
       {openArticle && (
-        <div className="help-tab__detail">
-          <div className="help-tab__detail-header">
-            <h3 className="help-tab__detail-title">
+        <S.Detail>
+          <S.DetailHeader>
+            <S.DetailTitle>
               {openArticle.title}
-            </h3>
-            <button
-              className="help-tab__detail-close"
+            </S.DetailTitle>
+            <S.DetailClose
               onClick={() => onToggleHelp(null)}
               aria-label="도움말 상세 닫기"
             >
               &#10005;
-            </button>
-          </div>
-          <div className="help-tab__detail-content">
+            </S.DetailClose>
+          </S.DetailHeader>
+          <S.DetailContent>
             {openArticle.content}
-          </div>
-        </div>
+          </S.DetailContent>
+        </S.Detail>
       )}
 
       {/* 도움말 카드 그리드 */}
@@ -85,11 +84,10 @@ export default function HelpTab({
           <p className="support-page__empty-text">등록된 도움말이 없습니다.</p>
         </div>
       ) : (
-        <div className="help-tab__grid">
+        <S.Grid>
           {articles.map((article) => (
-            <article
+            <S.Card
               key={article.id}
-              className="help-tab__card"
               onClick={() => onToggleHelp(article.id)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -102,21 +100,21 @@ export default function HelpTab({
               aria-expanded={openHelpId === article.id}
               aria-label={`${article.title} 도움말 열기`}
             >
-              <span className="help-tab__card-category">
+              <S.CardCategory>
                 {categoryLabelMap[article.category] || article.category}
-              </span>
-              <div className="help-tab__card-header">
-                <h3 className="help-tab__card-title">{article.title}</h3>
-                <span className="help-tab__card-views">
+              </S.CardCategory>
+              <S.CardHeader>
+                <S.CardTitle>{article.title}</S.CardTitle>
+                <S.CardViews>
                   {article.viewCount?.toLocaleString() || 0}회
-                </span>
-              </div>
-              <p className="help-tab__card-preview">
+                </S.CardViews>
+              </S.CardHeader>
+              <S.CardPreview>
                 {article.content}
-              </p>
-            </article>
+              </S.CardPreview>
+            </S.Card>
           ))}
-        </div>
+        </S.Grid>
       )}
     </section>
   );

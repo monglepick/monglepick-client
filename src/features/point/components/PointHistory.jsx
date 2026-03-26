@@ -14,7 +14,7 @@
  */
 
 import Loading from '../../../shared/components/Loading/Loading';
-import './PointHistory.css';
+import * as S from './PointHistory.styled';
 
 export default function PointHistory({
   history,
@@ -25,33 +25,33 @@ export default function PointHistory({
   formatDate,
 }) {
   return (
-    <section className="point-page__section point-page__history">
-      <h2 className="point-page__section-title">
+    <S.HistorySection>
+      <S.SectionTitle>
         포인트 이력
         {history.totalElements > 0 && (
-          <span className="point-page__history-count">
+          <S.HistoryCount>
             ({formatNumber(history.totalElements)}건)
-          </span>
+          </S.HistoryCount>
         )}
-      </h2>
+      </S.SectionTitle>
 
       {isLoading ? (
         <Loading message="이력 로딩 중..." />
       ) : history.content.length === 0 ? (
-        <div className="point-page__history-empty">
+        <S.HistoryEmpty>
           <p>포인트 이력이 없습니다.</p>
-        </div>
+        </S.HistoryEmpty>
       ) : (
         <>
           {/* 이력 테이블 */}
-          <div className="point-page__history-table-wrapper">
-            <table className="point-page__history-table">
+          <S.TableWrapper>
+            <S.HistoryTable>
               <thead>
                 <tr>
-                  <th>내용</th>
-                  <th>변동</th>
-                  <th>잔액</th>
-                  <th>일시</th>
+                  <S.Th>내용</S.Th>
+                  <S.Th>변동</S.Th>
+                  <S.Th>잔액</S.Th>
+                  <S.Th>일시</S.Th>
                 </tr>
               </thead>
               <tbody>
@@ -59,64 +59,55 @@ export default function PointHistory({
                   /* 양수(적립)는 초록색, 음수(차감)는 빨간색 */
                   const isPositive = item.pointChange > 0;
                   return (
-                    <tr key={item.id || idx}>
-                      <td className="point-page__history-desc">
+                    <S.Tr key={item.id || idx}>
+                      <S.DescCell>
                         {item.description || '-'}
-                      </td>
-                      <td
-                        className={[
-                          'point-page__history-change',
-                          isPositive
-                            ? 'point-page__history-change--positive'
-                            : 'point-page__history-change--negative',
-                        ].join(' ')}
-                      >
+                      </S.DescCell>
+                      <S.ChangeCell $positive={isPositive}>
                         {isPositive ? '+' : ''}{formatNumber(item.pointChange)}P
-                      </td>
-                      <td className="point-page__history-after">
+                      </S.ChangeCell>
+                      <S.AfterCell>
                         {formatNumber(item.pointAfter)}P
-                      </td>
-                      <td className="point-page__history-date">
+                      </S.AfterCell>
+                      <S.DateCell>
                         {formatDate(item.createdAt)}
-                      </td>
-                    </tr>
+                      </S.DateCell>
+                    </S.Tr>
                   );
                 })}
               </tbody>
-            </table>
-          </div>
+            </S.HistoryTable>
+          </S.TableWrapper>
 
           {/* 페이지네이션 */}
           {history.totalPages > 1 && (
-            <div className="point-page__pagination">
+            <S.Pagination>
               {/* 이전 페이지 */}
-              <button
-                className="point-page__pagination-btn"
+              <S.PaginationBtn
                 onClick={() => onPageChange((prev) => Math.max(0, prev - 1))}
                 disabled={historyPage === 0}
               >
                 이전
-              </button>
+              </S.PaginationBtn>
 
               {/* 페이지 번호 */}
-              <span className="point-page__pagination-info">
+              <S.PaginationInfo>
                 {historyPage + 1} / {history.totalPages}
-              </span>
+              </S.PaginationInfo>
 
               {/* 다음 페이지 */}
-              <button
-                className="point-page__pagination-btn"
+              <S.PaginationBtn
                 onClick={() =>
                   onPageChange((prev) => Math.min(history.totalPages - 1, prev + 1))
                 }
                 disabled={historyPage >= history.totalPages - 1}
               >
                 다음
-              </button>
-            </div>
+              </S.PaginationBtn>
+            </S.Pagination>
           )}
         </>
       )}
-    </section>
+    </S.HistorySection>
   );
 }

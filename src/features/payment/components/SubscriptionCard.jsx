@@ -18,7 +18,7 @@
  * @param {Function} props.formatNumber - 숫자 포맷팅 함수
  */
 
-import './SubscriptionCard.css';
+import * as S from './SubscriptionCard.styled';
 
 /** 구독 주기별 표시 라벨 */
 const PERIOD_TYPE_LABELS = {
@@ -36,54 +36,36 @@ export default function SubscriptionCard({ plan, processingId, onSubscribe, form
   const periodLabel = PERIOD_TYPE_LABELS[plan.periodType] || '월';
 
   return (
-    <div
-      className={[
-        'subscription-card',
-        isBest ? 'subscription-card--best' : '',
-      ].join(' ')}
-    >
+    <S.Wrapper $isBest={isBest}>
       {/* 최고 혜택 배지 */}
-      {isBest && (
-        <div className="subscription-card__badge">BEST</div>
-      )}
+      {isBest && <S.Badge>BEST</S.Badge>}
 
       {/* 상품명 */}
-      <h3 className="subscription-card__name">{plan.name}</h3>
+      <S.Name>{plan.name}</S.Name>
 
       {/* 가격 */}
-      <div className="subscription-card__price">
-        <span className="subscription-card__price-amount">
-          {formatNumber(plan.price)}
-        </span>
-        <span className="subscription-card__price-unit">원/{periodLabel}</span>
-      </div>
+      <S.PriceRow>
+        <S.PriceAmount>{formatNumber(plan.price)}</S.PriceAmount>
+        <S.PriceUnit>원/{periodLabel}</S.PriceUnit>
+      </S.PriceRow>
 
       {/* 포인트 지급량 */}
-      <p className="subscription-card__points">
-        {formatNumber(plan.pointsPerPeriod)}P 지급
-      </p>
+      <S.Points>{formatNumber(plan.pointsPerPeriod)}P 지급</S.Points>
 
       {/* 가성비 표시 */}
-      <p className="subscription-card__value">
-        1원당 {valuePerWon}P
-      </p>
+      <S.Value>1원당 {valuePerWon}P</S.Value>
 
       {/* 설명 */}
-      {plan.description && (
-        <p className="subscription-card__desc">{plan.description}</p>
-      )}
+      {plan.description && <S.Desc>{plan.description}</S.Desc>}
 
       {/* 구독 버튼 */}
-      <button
-        className={[
-          'subscription-card__btn',
-          isBest ? 'subscription-card__btn--best' : '',
-        ].join(' ')}
+      <S.SubscribeBtn
+        $isBest={isBest}
         onClick={() => onSubscribe(plan)}
         disabled={processingId === plan.planCode}
       >
         {processingId === plan.planCode ? '처리 중...' : '구독하기'}
-      </button>
-    </div>
+      </S.SubscribeBtn>
+    </S.Wrapper>
   );
 }

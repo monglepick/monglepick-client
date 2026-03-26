@@ -9,59 +9,58 @@
  * 모바일에서는 1컬럼 스택으로 전환된다.
  */
 
-import { Link } from 'react-router-dom';
 /* 라우트 경로 상수 — shared/constants에서 가져옴 */
 import { ROUTES } from '../../constants/routes';
-import './Footer.css';
+import * as S from './Footer.styled';
 
 export default function Footer() {
   // 현재 연도 — 저작권 표시에 사용
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="footer">
-      <div className="footer__inner">
+    <S.FooterWrapper>
+      <S.Inner>
         {/* ── 3컬럼 콘텐츠 영역 ── */}
-        <div className="footer__columns">
+        <S.Columns>
           {/* 좌측 — 로고 및 서비스 설명 */}
-          <div className="footer__brand">
-            <Link to={ROUTES.HOME} className="footer__logo">
-              <img src="/mongle-transparent.png" alt="몽글픽" className="footer__logo-icon" />
-              <span className="footer__logo-text">몽글픽</span>
-            </Link>
-            <p className="footer__desc">
+          <S.Brand>
+            <S.LogoLink to={ROUTES.HOME}>
+              <S.LogoIcon src="/mongle-transparent.png" alt="몽글픽" />
+              <S.LogoText>몽글픽</S.LogoText>
+            </S.LogoLink>
+            <S.Desc>
               AI가 당신의 취향을 분석하여
-            </p>
-            <p className="footer__desc">
+            </S.Desc>
+            <S.Desc>
               딱 맞는 영화를 추천해 드립니다.
-            </p>
-          </div>
+            </S.Desc>
+          </S.Brand>
 
           {/* 중앙 — 퀵 링크 */}
-          <div className="footer__nav">
-            <h4 className="footer__nav-title">바로가기</h4>
-            <Link to={ROUTES.HOME} className="footer__link">홈</Link>
-            <Link to={ROUTES.SEARCH} className="footer__link">검색</Link>
-            <Link to={ROUTES.COMMUNITY} className="footer__link">커뮤니티</Link>
-            <Link to={ROUTES.SUPPORT} className="footer__link">고객센터</Link>
-          </div>
+          <S.Nav>
+            <S.NavTitle>바로가기</S.NavTitle>
+            <S.NavLink to={ROUTES.HOME}>홈</S.NavLink>
+            <S.NavLink to={ROUTES.SEARCH}>검색</S.NavLink>
+            <S.NavLink to={ROUTES.COMMUNITY}>커뮤니티</S.NavLink>
+            <S.NavLink to={ROUTES.SUPPORT}>고객센터</S.NavLink>
+          </S.Nav>
 
           {/* 우측 — 팀 정보 */}
-          <div className="footer__team">
-            <h4 className="footer__nav-title">팀 정보</h4>
-            <p className="footer__team-name">몽글픽 팀</p>
-            <p className="footer__team-email">contact@monglepick.com</p>
-          </div>
-        </div>
+          <S.Team>
+            <S.NavTitle>팀 정보</S.NavTitle>
+            <S.TeamName>몽글픽 팀</S.TeamName>
+            <S.TeamEmail>contact@monglepick.com</S.TeamEmail>
+          </S.Team>
+        </S.Columns>
 
         {/* ── 구분선 ── */}
-        <div className="footer__divider" />
+        <S.Divider />
 
         {/* ── 저작권 ── */}
-        <div className="footer__copyright">
+        <S.Copyright>
           <p>&copy; {currentYear} 몽글픽. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+        </S.Copyright>
+      </S.Inner>
+    </S.FooterWrapper>
   );
 }

@@ -17,7 +17,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { confirmPayment } from '../api/paymentApi';
 import Loading from '../../../shared/components/Loading/Loading';
-import './PaymentCallbackPage.css';
+import * as S from './PaymentCallbackPage.styled';
 
 export default function PaymentSuccessPage() {
   /* URL 쿼리 파라미터에서 Toss 결제 결과 추출 */
@@ -72,82 +72,70 @@ export default function PaymentSuccessPage() {
   /* 로딩 중 */
   if (isLoading) {
     return (
-      <div className="payment-callback">
+      <S.Wrapper>
         <Loading message="결제를 승인하고 있습니다..." fullPage />
-      </div>
+      </S.Wrapper>
     );
   }
 
   /* 에러 발생 */
   if (error) {
     return (
-      <div className="payment-callback">
-        <div className="payment-callback__card">
-          <div className="payment-callback__icon payment-callback__icon--fail">!</div>
-          <h1 className="payment-callback__title">결제 승인 실패</h1>
-          <p className="payment-callback__message">{error}</p>
-          <div className="payment-callback__actions">
-            <button
-              className="payment-callback__btn payment-callback__btn--secondary"
-              onClick={() => navigate('/payment')}
-            >
+      <S.Wrapper>
+        <S.Card>
+          <S.Icon $variant="fail">!</S.Icon>
+          <S.Title>결제 승인 실패</S.Title>
+          <S.Message>{error}</S.Message>
+          <S.Actions>
+            <S.BtnSecondary onClick={() => navigate('/payment')}>
               결제 페이지로 돌아가기
-            </button>
-            <button
-              className="payment-callback__btn payment-callback__btn--primary"
-              onClick={() => navigate('/support')}
-            >
+            </S.BtnSecondary>
+            <S.BtnPrimary onClick={() => navigate('/support')}>
               고객센터 문의
-            </button>
-          </div>
-        </div>
-      </div>
+            </S.BtnPrimary>
+          </S.Actions>
+        </S.Card>
+      </S.Wrapper>
     );
   }
 
   /* 승인 성공 */
   return (
-    <div className="payment-callback">
-      <div className="payment-callback__card">
-        <div className="payment-callback__icon payment-callback__icon--success">&#10003;</div>
-        <h1 className="payment-callback__title">결제가 완료되었습니다</h1>
+    <S.Wrapper>
+      <S.Card>
+        <S.Icon $variant="success">&#10003;</S.Icon>
+        <S.Title>결제가 완료되었습니다</S.Title>
 
         {result && (
-          <div className="payment-callback__details">
+          <S.Details>
             {result.pointsGranted > 0 && (
-              <p className="payment-callback__detail">
-                <span className="payment-callback__detail-label">지급 포인트</span>
-                <span className="payment-callback__detail-value payment-callback__detail-value--highlight">
+              <S.Detail>
+                <S.DetailLabel>지급 포인트</S.DetailLabel>
+                <S.DetailValue $highlight>
                   +{result.pointsGranted.toLocaleString()}P
-                </span>
-              </p>
+                </S.DetailValue>
+              </S.Detail>
             )}
             {result.newBalance != null && (
-              <p className="payment-callback__detail">
-                <span className="payment-callback__detail-label">현재 잔액</span>
-                <span className="payment-callback__detail-value">
+              <S.Detail>
+                <S.DetailLabel>현재 잔액</S.DetailLabel>
+                <S.DetailValue>
                   {result.newBalance.toLocaleString()}P
-                </span>
-              </p>
+                </S.DetailValue>
+              </S.Detail>
             )}
-          </div>
+          </S.Details>
         )}
 
-        <div className="payment-callback__actions">
-          <button
-            className="payment-callback__btn payment-callback__btn--secondary"
-            onClick={() => navigate('/payment')}
-          >
+        <S.Actions>
+          <S.BtnSecondary onClick={() => navigate('/payment')}>
             결제 내역 보기
-          </button>
-          <button
-            className="payment-callback__btn payment-callback__btn--primary"
-            onClick={() => navigate('/chat')}
-          >
+          </S.BtnSecondary>
+          <S.BtnPrimary onClick={() => navigate('/chat')}>
             AI 추천 시작하기
-          </button>
-        </div>
-      </div>
-    </div>
+          </S.BtnPrimary>
+        </S.Actions>
+      </S.Card>
+    </S.Wrapper>
   );
 }

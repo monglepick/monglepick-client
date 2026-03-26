@@ -1,0 +1,77 @@
+/**
+ * SignUpPage styled-components 정의.
+ *
+ * 3개 floating orb 배경 (보라/시안/핑크, blur, 느린 animation).
+ * LoginPage와 orb 배치 위치만 다르다 (우상단/좌하단/좌상단).
+ */
+
+import styled from 'styled-components';
+import { floatUpDown } from '../../../shared/styles/animations';
+
+/** 회원가입 페이지 전체 컨테이너 — 세로 중앙 정렬, orb overflow 숨김 */
+export const SignUpPageWrapper = styled.div`
+  width: 100%;
+  min-height: calc(
+    100vh - ${({ theme }) => theme.layout.headerHeight} -
+      ${({ theme }) => theme.layout.footerHeight}
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: ${({ theme }) => theme.spacing.xl} ${({ theme }) => theme.spacing.lg};
+  position: relative;
+  overflow: hidden;
+`;
+
+/** 공통 배경 Floating Orb 기반 스타일 */
+const OrbBase = styled.div`
+  position: absolute;
+  border-radius: ${({ theme }) => theme.radius.full};
+  pointer-events: none;
+  will-change: transform;
+`;
+
+/** 우상단 보라 orb */
+export const Orb1 = styled(OrbBase)`
+  width: 450px;
+  height: 450px;
+  top: -120px;
+  right: -120px;
+  background: radial-gradient(
+    circle,
+    rgba(124, 108, 240, 0.2) 0%,
+    transparent 70%
+  );
+  filter: blur(100px);
+  animation: ${floatUpDown} 8s ease-in-out infinite;
+`;
+
+/** 좌하단 시안 orb */
+export const Orb2 = styled(OrbBase)`
+  width: 350px;
+  height: 350px;
+  bottom: -100px;
+  left: -100px;
+  background: radial-gradient(
+    circle,
+    rgba(6, 214, 160, 0.15) 0%,
+    transparent 70%
+  );
+  filter: blur(100px);
+  animation: ${floatUpDown} 10s ease-in-out infinite 2s;
+`;
+
+/** 좌상단 핑크 orb */
+export const Orb3 = styled(OrbBase)`
+  width: 300px;
+  height: 300px;
+  top: 30%;
+  left: 5%;
+  background: radial-gradient(
+    circle,
+    rgba(239, 71, 111, 0.1) 0%,
+    transparent 70%
+  );
+  filter: blur(120px);
+  animation: ${floatUpDown} 12s ease-in-out infinite 4s;
+`;

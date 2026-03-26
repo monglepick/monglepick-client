@@ -3,12 +3,14 @@
  *
  * 서비스 소개 + 팀 소개 + 기능 소개 + 기술 스택 + 데이터 규모 + 진행 현황을 포함한다.
  * 글래스모피즘 + 파티클 + 스크롤 애니메이션 기반 화려한 UI를 제공한다.
+ *
+ * CSS 전환: LandingPage.css → LandingPage.styled.js (styled-components)
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../../shared/constants/routes';
-import './LandingPage.css';
+import * as S from './LandingPage.styled';
 
 /* ── 피처 데이터 ── */
 const FEATURES = [
@@ -77,6 +79,8 @@ export default function LandingPage() {
     const colors = ['#7c6cf0', '#06d6a0', '#ef476f', '#a78bfa'];
     for (let i = 0; i < 30; i++) {
       const p = document.createElement('div');
+      /* styled-components가 .lp-particle 규칙을 HeroParticles 내부에 정의하므로
+         className을 그대로 유지한다 */
       p.className = 'lp-particle';
       p.style.left = Math.random() * 100 + '%';
       p.style.animationDelay = Math.random() * 8 + 's';
@@ -132,336 +136,406 @@ export default function LandingPage() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  /* 현재 활성 피처 */
   const f = FEATURES[activeFeature];
 
   return (
-    <div className="lp">
+    <S.LandingWrapper>
       {/* 배경 오브 */}
-      <div className="lp-bg-orb lp-bg-orb--1" />
-      <div className="lp-bg-orb lp-bg-orb--2" />
-      <div className="lp-bg-orb lp-bg-orb--3" />
+      <S.BgOrb1 />
+      <S.BgOrb2 />
+      <S.BgOrb3 />
 
       {/* ── 네비게이션 ── */}
-      <nav className={`lp-nav${scrolled ? ' lp-nav--scrolled' : ''}`}>
-        <div className="lp-nav__logo">
-          <img src="/mongle-transparent.png" alt="몽글픽" className="lp-nav__logo-img" />
+      <S.Nav $scrolled={scrolled}>
+        <S.NavLogo>
+          <S.NavLogoImg src="/mongle-transparent.png" alt="몽글픽" />
           <span>MONGLEPICK</span>
-        </div>
-        <div className="lp-nav__links">
+        </S.NavLogo>
+        <S.NavLinks>
           <a href="#lp-features" onClick={e => scrollTo(e, 'lp-features')}>기능 소개</a>
           <a href="#lp-howto" onClick={e => scrollTo(e, 'lp-howto')}>사용방법</a>
           <a href="#lp-team" onClick={e => scrollTo(e, 'lp-team')}>팀 소개</a>
           <a href="#lp-tech" onClick={e => scrollTo(e, 'lp-tech')}>기술</a>
           <a href="#lp-progress" onClick={e => scrollTo(e, 'lp-progress')}>진행현황</a>
-          <Link to={ROUTES.HOME} className="lp-nav__cta">시작하기</Link>
-        </div>
-      </nav>
+          {/* NavCta를 Link로 렌더링 — as prop 활용 */}
+          <S.NavCta as={Link} to={ROUTES.HOME}>시작하기</S.NavCta>
+        </S.NavLinks>
+      </S.Nav>
 
       {/* ── 히어로 ── */}
-      <section className="lp-hero" id="lp-hero">
-        <div className="lp-hero__grid" />
-        <div className="lp-hero__particles" ref={particlesRef} />
+      <S.Hero id="lp-hero">
+        <S.HeroGrid />
+        <S.HeroParticles ref={particlesRef} />
 
-        <div className="lp-hero__layout">
+        <S.HeroLayout>
           {/* 좌측 텍스트 */}
           <div>
-            <div className="lp-hero__badge">
-              <span className="lp-hero__badge-dot" />
+            <S.HeroBadge>
+              <S.HeroBadgeDot />
               AI 영화 추천 서비스
-            </div>
-            <h1 className="lp-hero__title">
+            </S.HeroBadge>
+            <S.HeroTitle>
               오늘 기분에<br />
               <span>딱 맞는 영화</span><br />
               AI가 골라드려요
-            </h1>
-            <p className="lp-hero__desc">
+            </S.HeroTitle>
+            <S.HeroDesc>
               "오늘 좀 우울한데..." 한 마디면 충분해요.<br />
               몽글픽이 당신의 감정과 취향을 읽고,<br />
               지금 꼭 봐야 할 영화를 찾아드립니다.
-            </p>
-            <div className="lp-hero__cta">
-              <Link to={ROUTES.HOME} className="lp-btn lp-btn--primary">무료로 시작하기 &rarr;</Link>
-              <a href="#lp-features" onClick={e => scrollTo(e, 'lp-features')} className="lp-btn lp-btn--glass">서비스 둘러보기</a>
-            </div>
-            <div className="lp-hero__checks">
-              <span><span className="lp-check-icon">&#10003;</span> 무료 서비스</span>
-              <span><span className="lp-check-icon">&#10003;</span> 소셜 로그인</span>
-              <span><span className="lp-check-icon">&#10003;</span> OTT 연동</span>
-            </div>
+            </S.HeroDesc>
+            <S.HeroCta>
+              {/* BtnPrimary를 Link로 렌더링 */}
+              <S.BtnPrimary as={Link} to={ROUTES.HOME}>무료로 시작하기 &rarr;</S.BtnPrimary>
+              <S.BtnGlass as="a" href="#lp-features" onClick={e => scrollTo(e, 'lp-features')}>
+                서비스 둘러보기
+              </S.BtnGlass>
+            </S.HeroCta>
+            <S.HeroChecks>
+              <span><S.CheckIcon>&#10003;</S.CheckIcon> 무료 서비스(부분 유료)</span>
+              <span><S.CheckIcon>&#10003;</S.CheckIcon> 소셜 로그인</span>
+              <span><S.CheckIcon>&#10003;</S.CheckIcon> OTT 연동</span>
+            </S.HeroChecks>
           </div>
 
           {/* 우측 플로팅 무비카드 */}
-          <div className="lp-hero__cards">
+          <S.HeroCards>
             {MOVIE_CARDS.map((m) => (
-              <div
+              <S.MovieFloat
                 key={m.title}
-                className="lp-movie-float"
                 style={{
-                  top: m.style.top, left: m.style.left, right: m.style.right,
-                  '--rot': m.style.rot + 'deg', '--dur': m.style.dur + 's', '--delay': m.style.delay + 's',
+                  top: m.style.top,
+                  left: m.style.left,
+                  right: m.style.right,
+                  /* CSS 변수로 회전각, 지속시간, 지연 전달 */
+                  '--rot': m.style.rot + 'deg',
+                  '--dur': m.style.dur + 's',
+                  '--delay': m.style.delay + 's',
                 }}
               >
-                <div className="lp-movie-float__poster">🎬</div>
-                <div className="lp-movie-float__title">{m.title}</div>
-                <div className="lp-movie-float__genre">{m.genre}</div>
-                <div className="lp-movie-float__meta">
-                  <span className="lp-movie-float__rating">⭐ {m.rating}</span>
-                  <span className="lp-movie-float__year">{m.year}</span>
-                </div>
-              </div>
+                <S.MovieFloatPoster>🎬</S.MovieFloatPoster>
+                <S.MovieFloatTitle>{m.title}</S.MovieFloatTitle>
+                <S.MovieFloatGenre>{m.genre}</S.MovieFloatGenre>
+                <S.MovieFloatMeta>
+                  <S.MovieFloatRating>⭐ {m.rating}</S.MovieFloatRating>
+                  <S.MovieFloatYear>{m.year}</S.MovieFloatYear>
+                </S.MovieFloatMeta>
+              </S.MovieFloat>
             ))}
-          </div>
-        </div>
-      </section>
+          </S.HeroCards>
+        </S.HeroLayout>
+      </S.Hero>
 
       {/* ── AI 채팅 데모 ── */}
-      <section className="lp-chat-demo" id="lp-chat-demo">
-        <div className="lp-container">
-          <div className="lp-chat-demo__layout">
-            <div className="lp-reveal">
-              <div className="lp-section-label">AI Chat</div>
-              <h2 className="lp-section-title">말만 하면<br />바로 추천해드려요</h2>
-              <p className="lp-section-subtitle" style={{ marginBottom: 24 }}>
+      <S.ChatDemo id="lp-chat-demo">
+        <S.Container>
+          <S.ChatDemoLayout>
+            <S.Reveal className="lp-reveal">
+              <S.SectionLabel>AI Chat</S.SectionLabel>
+              <S.SectionTitle>말만 하면<br />바로 추천해드려요</S.SectionTitle>
+              <S.SectionSubtitle style={{ marginBottom: 24 }}>
                 복잡한 필터 설정 없이 지금 기분을 자연어로 말해보세요.
                 감정 분석 AI가 오늘 당신에게 맞는 영화를 찾아드려요.
-              </p>
-              <p className="lp-section-subtitle">
+              </S.SectionSubtitle>
+              <S.SectionSubtitle>
                 LangGraph 기반 대화 흐름이 의도를 분류하고,
                 감정을 분석하고, 취향을 추출해
                 SSE 스트리밍으로 실시간 응답합니다.
-              </p>
-            </div>
+              </S.SectionSubtitle>
+            </S.Reveal>
 
             {/* 채팅 UI 목업 */}
-            <div className="lp-chat-window lp-reveal lp-reveal-delay-2">
-              <div className="lp-chat-window__header">
-                <img src="/mongle-transparent.png" alt="몽글픽" className="lp-chat-window__avatar" />
-                <span className="lp-chat-window__name">몽글 AI</span>
-                <div className="lp-chat-window__status" />
-              </div>
-              <div className="lp-chat-bubble lp-chat-bubble--user">
-                오늘 좀 우울한데... 힐링되는 영화 추천해줘
-              </div>
-              <div className="lp-chat-bubble lp-chat-bubble--ai">
-                감정이 느껴지네요 🌙 따뜻하게 위로받을 수 있는 영화들을 골라봤어요.
-              </div>
-              <div className="lp-chat-reco-cards">
-                <div className="lp-chat-reco-card">
-                  <div className="lp-chat-reco-card__title">어바웃 타임</div>
-                  <div className="lp-chat-reco-card__genre">로맨스</div>
-                  <div className="lp-chat-reco-card__bottom">
-                    <span className="lp-chat-reco-card__rating">⭐ 7.8</span>
-                    <span className="lp-chat-reco-card__ott">▶ OTT</span>
-                  </div>
-                </div>
-                <div className="lp-chat-reco-card">
-                  <div className="lp-chat-reco-card__title">인사이드 아웃</div>
-                  <div className="lp-chat-reco-card__genre">애니메이션</div>
-                  <div className="lp-chat-reco-card__bottom">
-                    <span className="lp-chat-reco-card__rating">⭐ 8.1</span>
-                    <span className="lp-chat-reco-card__ott">▶ OTT</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            <S.Reveal className="lp-reveal" $delay="0.2s">
+              <S.ChatWindow>
+                <S.ChatWindowHeader>
+                  <S.ChatWindowAvatar src="/mongle-transparent.png" alt="몽글픽" />
+                  <S.ChatWindowName>몽글 AI</S.ChatWindowName>
+                  <S.ChatWindowStatus />
+                </S.ChatWindowHeader>
+                <S.ChatBubble $isUser>
+                  오늘 좀 우울한데... 힐링되는 영화 추천해줘
+                </S.ChatBubble>
+                <S.ChatBubble>
+                  감정이 느껴지네요 🌙 따뜻하게 위로받을 수 있는 영화들을 골라봤어요.
+                </S.ChatBubble>
+                <S.ChatRecoCards>
+                  <S.ChatRecoCard>
+                    <S.ChatRecoCardTitle>어바웃 타임</S.ChatRecoCardTitle>
+                    <S.ChatRecoCardGenre>로맨스</S.ChatRecoCardGenre>
+                    <S.ChatRecoCardBottom>
+                      <S.ChatRecoCardRating>⭐ 7.8</S.ChatRecoCardRating>
+                      <S.ChatRecoCardOtt>▶ OTT</S.ChatRecoCardOtt>
+                    </S.ChatRecoCardBottom>
+                  </S.ChatRecoCard>
+                  <S.ChatRecoCard>
+                    <S.ChatRecoCardTitle>인사이드 아웃</S.ChatRecoCardTitle>
+                    <S.ChatRecoCardGenre>애니메이션</S.ChatRecoCardGenre>
+                    <S.ChatRecoCardBottom>
+                      <S.ChatRecoCardRating>⭐ 8.1</S.ChatRecoCardRating>
+                      <S.ChatRecoCardOtt>▶ OTT</S.ChatRecoCardOtt>
+                    </S.ChatRecoCardBottom>
+                  </S.ChatRecoCard>
+                </S.ChatRecoCards>
+              </S.ChatWindow>
+            </S.Reveal>
+          </S.ChatDemoLayout>
+        </S.Container>
+      </S.ChatDemo>
 
       {/* ── 핵심 기능 ── */}
-      <section className="lp-features" id="lp-features">
-        <div className="lp-container">
-          <div className="lp-features__header lp-reveal">
-            <div className="lp-section-label">Key Features</div>
-            <h2 className="lp-section-title">
-              영화를 더 즐겁게 만드는<br />
-              <span className="lp-gradient-text">모든 것</span>이 담겨있어요
-            </h2>
-          </div>
+      <S.Features id="lp-features">
+        <S.Container>
+          <S.FeaturesHeader>
+            <S.Reveal className="lp-reveal">
+              <S.SectionLabel>Key Features</S.SectionLabel>
+              <S.SectionTitle>
+                영화를 더 즐겁게 만드는<br />
+                <S.GradientText>모든 것</S.GradientText>이 담겨있어요
+              </S.SectionTitle>
+            </S.Reveal>
+          </S.FeaturesHeader>
 
           {/* 피처 필 */}
-          <div className="lp-features__pills lp-reveal">
-            {FEATURES.map((ft, i) => (
-              <button
-                key={ft.title}
-                className={`lp-feature-pill${activeFeature === i ? ' active' : ''}`}
-                style={{ '--pill-color': ft.color, '--pill-bg': ft.color + '1f' }}
-                onClick={() => selectFeature(i)}
-              >
-                {ft.icon} {ft.title}
-              </button>
-            ))}
-          </div>
+          <S.Reveal className="lp-reveal">
+            <S.FeaturesPills>
+              {FEATURES.map((ft, i) => (
+                <S.FeaturePill
+                  key={ft.title}
+                  $active={activeFeature === i}
+                  $color={ft.color}
+                  onClick={() => selectFeature(i)}
+                >
+                  {ft.icon} {ft.title}
+                </S.FeaturePill>
+              ))}
+            </S.FeaturesPills>
+          </S.Reveal>
 
           {/* 피처 상세 */}
-          <div className="lp-feature-display lp-reveal" style={{ borderColor: f.color + '33' }}>
-            <div className="lp-feature-display__icon">{f.icon}</div>
-            <div>
-              <div className="lp-feature-display__tag" style={{ background: f.color + '22', color: f.color }}>{f.tag}</div>
-              <h3 className="lp-feature-display__title">{f.title}</h3>
-              <p className="lp-feature-display__desc">{f.desc}</p>
-            </div>
-          </div>
+          <S.Reveal className="lp-reveal">
+            <S.FeatureDisplay $accent={f.color}>
+              <S.FeatureDisplayIcon>{f.icon}</S.FeatureDisplayIcon>
+              <div>
+                <S.FeatureDisplayTag $color={f.color}>{f.tag}</S.FeatureDisplayTag>
+                <S.FeatureDisplayTitle>{f.title}</S.FeatureDisplayTitle>
+                <S.FeatureDisplayDesc>{f.desc}</S.FeatureDisplayDesc>
+              </div>
+            </S.FeatureDisplay>
+          </S.Reveal>
 
           {/* 미니 그리드 */}
-          <div className="lp-features__mini-grid lp-reveal">
-            {FEATURES.map((ft, i) => (
-              <div key={ft.title} className={`lp-feature-mini${activeFeature === i ? ' active' : ''}`} onClick={() => selectFeature(i)}>
-                <div className="lp-feature-mini__icon">{ft.icon}</div>
-                <div className="lp-feature-mini__title">{ft.title}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <S.Reveal className="lp-reveal">
+            <S.FeaturesMiniGrid>
+              {FEATURES.map((ft, i) => (
+                <S.FeatureMini
+                  key={ft.title}
+                  $active={activeFeature === i}
+                  onClick={() => selectFeature(i)}
+                >
+                  <S.FeatureMiniIcon>{ft.icon}</S.FeatureMiniIcon>
+                  <S.FeatureMiniTitle>{ft.title}</S.FeatureMiniTitle>
+                </S.FeatureMini>
+              ))}
+            </S.FeaturesMiniGrid>
+          </S.Reveal>
+        </S.Container>
+      </S.Features>
 
       {/* ── 사용 방법 3스텝 ── */}
-      <section className="lp-howto" id="lp-howto">
-        <div className="lp-container">
-          <div className="lp-howto__header lp-reveal">
-            <div className="lp-section-label">How it works</div>
-            <h2 className="lp-section-title">
-              단 3단계로<br />
-              <span className="lp-gradient-text">오늘의 영화</span>를 찾아요
-            </h2>
-          </div>
-          <div className="lp-howto__steps lp-reveal">
-            {[
-              { icon: '🎯', num: '01', title: '취향 설정', desc: '장르를 고르고 영화 월드컵으로\n나만의 성향을 알아가요' },
-              { icon: '💬', num: '02', title: 'AI와 대화', desc: '오늘 기분, 상황, 원하는 분위기를\n자연어로 말해보세요' },
-              { icon: '🍿', num: '03', title: '바로 감상', desc: 'OTT 바로가기, 영화관 예약까지\n한 번에 연결해드려요' },
-            ].map((s) => (
-              <div className="lp-step-card" key={s.num}>
-                <div className="lp-step-card__circle">{s.icon}</div>
-                <div className="lp-step-card__num">{s.num}</div>
-                <h3 className="lp-step-card__title">{s.title}</h3>
-                <p className="lp-step-card__desc">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <S.HowTo id="lp-howto">
+        <S.Container>
+          <S.HowToHeader>
+            <S.Reveal className="lp-reveal">
+              <S.SectionLabel>How it works</S.SectionLabel>
+              <S.SectionTitle>
+                단 3단계로<br />
+                <S.GradientText>오늘의 영화</S.GradientText>를 찾아요
+              </S.SectionTitle>
+            </S.Reveal>
+          </S.HowToHeader>
+          <S.Reveal className="lp-reveal">
+            <S.HowToSteps>
+              {[
+                { icon: '🎯', num: '01', title: '취향 설정', desc: '장르를 고르고 영화 월드컵으로\n나만의 성향을 알아가요' },
+                { icon: '💬', num: '02', title: 'AI와 대화', desc: '오늘 기분, 상황, 원하는 분위기를\n자연어로 말해보세요' },
+                { icon: '🍿', num: '03', title: '바로 감상', desc: 'OTT 바로가기, 영화관 예약까지\n한 번에 연결해드려요' },
+              ].map((s) => (
+                <S.StepCard key={s.num}>
+                  {/* className으로 부모의 &:hover .step-circle 셀렉터와 연결 */}
+                  <S.StepCircle className="step-circle">{s.icon}</S.StepCircle>
+                  <S.StepNum>{s.num}</S.StepNum>
+                  <S.StepTitle>{s.title}</S.StepTitle>
+                  <S.StepDesc>{s.desc}</S.StepDesc>
+                </S.StepCard>
+              ))}
+            </S.HowToSteps>
+          </S.Reveal>
+        </S.Container>
+      </S.HowTo>
 
       {/* ── 차별점 ── */}
-      <section className="lp-diff">
-        <div className="lp-container">
-          <div className="lp-diff__box lp-reveal">
-            <div>
-              <div className="lp-section-label">Why Monglepick</div>
-              <h2 className="lp-section-title" style={{ marginBottom: 20 }}>
-                다른 추천 서비스와<br />무엇이 다를까요?
-              </h2>
-              <p className="lp-section-subtitle">
-                단순한 장르 필터링이 아니에요. 감정, 상황, 취향을
-                종합적으로 분석해 진짜 맞춤 추천을 드려요.
-              </p>
-            </div>
-            <div className="lp-diff__items">
-              {[
-                { icon: '🧠', text: '감정 분석 기반 AI 추천', sub: 'LLM 기반 의도+감정 통합 분류 모델 적용' },
-                { icon: '🎮', text: '게임화된 취향 분석', sub: '영화 월드컵 이지선다로 재미있게' },
-                { icon: '💞', text: '시네마 소울메이트 매칭', sub: '취향 유사도 TOP 10 유저 연결' },
-                { icon: '📺', text: 'OTT 통합 연동', sub: '넷플릭스, 왓챠, 디즈니+ 등 한번에' },
-              ].map((d) => (
-                <div className="lp-diff-item" key={d.text}>
-                  <span className="lp-diff-item__icon">{d.icon}</span>
-                  <div>
-                    <div className="lp-diff-item__text">{d.text}</div>
-                    <div className="lp-diff-item__sub">{d.sub}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <S.Diff>
+        <S.Container>
+          <S.Reveal className="lp-reveal">
+            <S.DiffBox>
+              <div>
+                <S.SectionLabel>Why Monglepick</S.SectionLabel>
+                <S.SectionTitle style={{ marginBottom: 20 }}>
+                  다른 추천 서비스와<br />무엇이 다를까요?
+                </S.SectionTitle>
+                <S.SectionSubtitle>
+                  단순한 장르 필터링이 아니에요. 감정, 상황, 취향을
+                  종합적으로 분석해 진짜 맞춤 추천을 드려요.
+                </S.SectionSubtitle>
+              </div>
+              <S.DiffItems>
+                {[
+                  { icon: '🧠', text: '감정 분석 기반 AI 추천', sub: 'LLM 기반 의도+감정 통합 분류 모델 적용' },
+                  { icon: '🎮', text: '게임화된 취향 분석', sub: '영화 월드컵 이지선다로 재미있게' },
+                  { icon: '💞', text: '시네마 소울메이트 매칭', sub: '취향 유사도 TOP 10 유저 연결' },
+                  { icon: '📺', text: 'OTT 통합 연동', sub: '넷플릭스, 왓챠, 디즈니+ 등 한번에' },
+                ].map((d) => (
+                  <S.DiffItem key={d.text}>
+                    <S.DiffItemIcon>{d.icon}</S.DiffItemIcon>
+                    <div>
+                      <S.DiffItemText>{d.text}</S.DiffItemText>
+                      <S.DiffItemSub>{d.sub}</S.DiffItemSub>
+                    </div>
+                  </S.DiffItem>
+                ))}
+              </S.DiffItems>
+            </S.DiffBox>
+          </S.Reveal>
+        </S.Container>
+      </S.Diff>
 
       {/* ── 팀 소개 ── */}
-      <section className="lp-team" id="lp-team">
-        <div className="lp-container">
-          <div className="lp-team__header lp-reveal">
-            <div className="lp-section-label">Our Team</div>
-            <h2 className="lp-section-title">몽글픽을 만드는 사람들</h2>
-            <p className="lp-section-subtitle" style={{ margin: '0 auto' }}>
-              각자의 전문 영역에서 하나의 목표를 향해 달리고 있습니다
-            </p>
-          </div>
+      <S.Team id="lp-team">
+        <S.Container>
+          <S.TeamHeader>
+            <S.Reveal className="lp-reveal">
+              <S.SectionLabel>Our Team</S.SectionLabel>
+              <S.SectionTitle>몽글픽을 만드는 사람들</S.SectionTitle>
+              <S.SectionSubtitle style={{ margin: '0 auto' }}>
+                각자의 전문 영역에서 하나의 목표를 향해 달리고 있습니다
+              </S.SectionSubtitle>
+            </S.Reveal>
+          </S.TeamHeader>
 
-          <div className="lp-team__grid">
+          <S.TeamGrid>
             {TEAM_MEMBERS.map((m, i) => (
-              <div className={`lp-team-card lp-reveal lp-reveal-delay-${i + 1}`} key={m.name} style={{ '--card-accent': m.color }}>
-                <div className="lp-team-card__top">
-                  <div className="lp-team-card__avatar" style={{ background: m.color, color: m.color === '#ffd166' ? '#0a0a14' : '#fff' }}>
-                    {m.initials}
+              <S.Reveal
+                className="lp-reveal"
+                $delay={`${(i + 1) * 0.1}s`}
+                key={m.name}
+              >
+                <S.TeamCard $accent={m.color}>
+                  <S.TeamCardTop>
+                    {/* 이민수(노랑)는 어두운 텍스트, 나머지는 흰색 */}
+                    <S.TeamCardAvatar
+                      $bg={m.color}
+                      $color={m.color === '#ffd166' ? '#0a0a14' : '#fff'}
+                    >
+                      {m.initials}
+                    </S.TeamCardAvatar>
+                    <S.TeamCardInfo>
+                      <h3>{m.name}</h3>
+                      <S.TeamCardRole $color={m.color}>{m.role}</S.TeamCardRole>
+                    </S.TeamCardInfo>
+                  </S.TeamCardTop>
+                  <S.TeamCardDesc>{m.desc}</S.TeamCardDesc>
+                  <S.TeamCardTags>
+                    {m.tags.map((t) => (
+                      <S.Tag
+                        key={t}
+                        $bg={m.color + '18'}
+                        $border={m.color + '30'}
+                        $color={m.color}
+                      >
+                        {t}
+                      </S.Tag>
+                    ))}
+                  </S.TeamCardTags>
+                  <div>
+                    <S.ProgressHeader>
+                      <S.ProgressLabel>구현 진행률</S.ProgressLabel>
+                      <S.ProgressValue $color={m.color}>{m.progress}%</S.ProgressValue>
+                    </S.ProgressHeader>
+                    <S.ProgressBar>
+                      {/* data-width: Intersection Observer에서 width 설정에 사용 */}
+                      <S.ProgressFill
+                        className="lp-progress-fill"
+                        data-width={m.progress}
+                        $gradient={`linear-gradient(90deg, ${m.color}, #06d6a0)`}
+                      />
+                    </S.ProgressBar>
                   </div>
-                  <div className="lp-team-card__info">
-                    <h3>{m.name}</h3>
-                    <div className="lp-team-card__role" style={{ color: m.color }}>{m.role}</div>
-                  </div>
-                </div>
-                <p className="lp-team-card__desc">{m.desc}</p>
-                <div className="lp-team-card__tags">
-                  {m.tags.map((t, j) => (
-                    <span className="lp-tag" key={j} style={{ background: m.color + '18', borderColor: m.color + '30', color: m.color }}>{t}</span>
-                  ))}
-                </div>
-                <div className="lp-team-card__progress">
-                  <div className="lp-progress-header">
-                    <span className="lp-progress-label">구현 진행률</span>
-                    <span className="lp-progress-value" style={{ color: m.color }}>{m.progress}%</span>
-                  </div>
-                  <div className="lp-progress-bar">
-                    <div className="lp-progress-fill" data-width={m.progress} style={{ background: `linear-gradient(90deg, ${m.color}, var(--lp-accent-cyan))` }} />
-                  </div>
-                </div>
-                <div className="lp-team-card__req" style={{ background: m.color + '12', borderColor: m.color + '25', color: m.color }}>{m.req}</div>
-              </div>
+                  <S.TeamCardReq
+                    $bg={m.color + '12'}
+                    $border={m.color + '25'}
+                    $color={m.color}
+                  >
+                    {m.req}
+                  </S.TeamCardReq>
+                </S.TeamCard>
+              </S.Reveal>
             ))}
-          </div>
-        </div>
-      </section>
+          </S.TeamGrid>
+        </S.Container>
+      </S.Team>
 
       {/* ── 기술 스택 ── */}
-      <section className="lp-tech" id="lp-tech">
-        <div className="lp-container">
-          <div className="lp-tech__header lp-reveal">
-            <div className="lp-section-label">Tech Stack</div>
-            <h2 className="lp-section-title">검증된 기술의 조합</h2>
-          </div>
-          <div className="lp-tech__categories">
+      <S.Tech id="lp-tech">
+        <S.Container>
+          <S.TechHeader>
+            <S.Reveal className="lp-reveal">
+              <S.SectionLabel>Tech Stack</S.SectionLabel>
+              <S.SectionTitle>검증된 기술의 조합</S.SectionTitle>
+            </S.Reveal>
+          </S.TechHeader>
+          <S.TechCategories>
             {[
               { title: 'AI / LLM', dot: '#7c6cf0', items: ['EXAONE 4.0 32B (한국어 생성)', 'Qwen 3.5 35B (의도/감정/이미지)', 'Upstage Solar (임베딩 4096D)', 'LangGraph StateGraph', 'LangSmith Tracing', 'Ollama (Apple Silicon Metal)'] },
               { title: 'Backend', dot: '#ef476f', items: ['Spring Boot 4.0.3 (Java 21)', 'FastAPI + uvicorn', 'JWT Authentication', 'SSE Streaming', 'structlog Logging'] },
               { title: 'Database (5)', dot: '#118ab2', items: ['MySQL 8.0 (36 Tables)', 'Qdrant (Vector, 4096D)', 'Neo4j 5 (Graph)', 'Elasticsearch 8.17 (Nori)', 'Redis 7 (Cache + Session)'] },
               { title: 'Infrastructure', dot: '#06d6a0', items: ['Docker Compose (Multi VM)', 'Nginx (SSL + SSE Proxy)', 'GitHub Actions CI/CD', 'Prometheus + Grafana + Loki', 'Kakao Cloud (4 VM)'] },
             ].map((cat, i) => (
-              <div className={`lp-tech-category lp-reveal lp-reveal-delay-${i + 1}`} key={cat.title}>
-                <h3 className="lp-tech-category__title">{cat.title}</h3>
-                <div className="lp-tech-category__items">
-                  {cat.items.map((item, j) => (
-                    <div className="lp-tech-item" key={j}>
-                      <span className="lp-tech-item__dot" style={{ background: cat.dot }} />
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <S.Reveal
+                className="lp-reveal"
+                $delay={`${(i + 1) * 0.1}s`}
+                key={cat.title}
+              >
+                <S.TechCategory>
+                  <S.TechCategoryTitle>{cat.title}</S.TechCategoryTitle>
+                  <S.TechItems>
+                    {cat.items.map((item) => (
+                      <S.TechItem key={item}>
+                        <S.TechItemDot $bg={cat.dot} />
+                        {item}
+                      </S.TechItem>
+                    ))}
+                  </S.TechItems>
+                </S.TechCategory>
+              </S.Reveal>
             ))}
-          </div>
-        </div>
-      </section>
+          </S.TechCategories>
+        </S.Container>
+      </S.Tech>
 
       {/* ── 데이터 규모 ── */}
-      <section className="lp-data">
-        <div className="lp-container">
-          <div className="lp-data__header lp-reveal">
-            <div className="lp-section-label">Data Scale</div>
-            <h2 className="lp-section-title">117만 편의 영화 데이터</h2>
-            <p className="lp-section-subtitle" style={{ margin: '0 auto' }}>
-              TMDB, KOBIS, KMDb, Kaggle 4개 소스에서 수집한 방대한 데이터
-            </p>
-          </div>
-          <div className="lp-data__grid">
+      <S.Data>
+        <S.Container>
+          <S.DataHeader>
+            <S.Reveal className="lp-reveal">
+              <S.SectionLabel>Data Scale</S.SectionLabel>
+              <S.SectionTitle>117만 편의 영화 데이터</S.SectionTitle>
+              <S.SectionSubtitle style={{ margin: '0 auto' }}>
+                TMDB, KOBIS, KMDb, Kaggle 4개 소스에서 수집한 방대한 데이터
+              </S.SectionSubtitle>
+            </S.Reveal>
+          </S.DataHeader>
+          <S.DataGrid>
             {[
               { value: '1.17M', label: 'TMDB 영화 데이터', sub: '25.6GB JSONL, 39개 필드' },
               { value: '157K', label: '현재 DB 적재', sub: '5개 DB 동기화' },
@@ -470,77 +544,96 @@ export default function LandingPage() {
               { value: '43K', label: 'KMDb 영화', sub: '한국영화데이터베이스' },
               { value: '586K', label: 'Redis 캐시 키', sub: 'CF 캐시 975MB' },
             ].map((d, i) => (
-              <div className={`lp-data-card lp-reveal lp-reveal-delay-${(i % 4) + 1}`} key={d.label}>
-                <div className="lp-data-card__value">{d.value}</div>
-                <div className="lp-data-card__label">{d.label}</div>
-                <div className="lp-data-card__sub">{d.sub}</div>
-              </div>
+              <S.Reveal
+                className="lp-reveal"
+                $delay={`${((i % 4) + 1) * 0.1}s`}
+                key={d.label}
+              >
+                <S.DataCard>
+                  <S.DataCardValue>{d.value}</S.DataCardValue>
+                  <S.DataCardLabel>{d.label}</S.DataCardLabel>
+                  <S.DataCardSub>{d.sub}</S.DataCardSub>
+                </S.DataCard>
+              </S.Reveal>
             ))}
-          </div>
-        </div>
-      </section>
+          </S.DataGrid>
+        </S.Container>
+      </S.Data>
 
       {/* ── 진행 현황 ── */}
-      <section className="lp-timeline" id="lp-progress">
-        <div className="lp-container">
-          <div className="lp-timeline__header lp-reveal">
-            <div className="lp-section-label">Progress</div>
-            <h2 className="lp-section-title">구현 여정</h2>
-          </div>
-          <div className="lp-timeline__list lp-reveal">
-            {[
-              { dot: 'done', title: 'Phase 0~1 — 스캐폴딩 + 데이터 파이프라인', desc: 'FastAPI 구조, Docker Compose, TMDB/Kaggle/KOBIS/KMDb 수집, 하이브리드 RAG', badge: 'done' },
-              { dot: 'done', title: 'Phase 2~3 — LLM 체인 + Chat Agent', desc: '6개 LLM 체인, LangGraph 13노드 StateGraph, SSE/sync API, 148 tests', badge: 'done' },
-              { dot: 'done', title: 'Phase 4 — 추천 엔진 + 보안 강화', desc: '7노드 CF+CBF+MMR, VLM 이미지 분석, 세션 영속화, 보안 강화 — 308 tests', badge: 'done' },
-              { dot: 'active', title: '전체 재적재', desc: 'TMDB 1.17M건 스트리밍 배치 → 3DB 적재 (run_full_reload.py)', badge: 'active' },
-              { dot: '', title: 'Phase 5~8', desc: 'SSE 최적화, LangChain Tools, 콘텐츠 분석, 테스트 & 최적화', badge: 'pending' },
-            ].map((item) => (
-              <div className="lp-timeline-item" key={item.title}>
-                <div className={`lp-timeline-item__dot${item.dot ? ` lp-timeline-item__dot--${item.dot}` : ''}`} />
-                <div className="lp-timeline-item__content">
-                  <h4>{item.title} <span className={`lp-timeline-badge lp-timeline-badge--${item.badge}`}>
-                    {item.badge === 'done' ? '완료' : item.badge === 'active' ? '진행 중' : '예정'}
-                  </span></h4>
-                  <p>{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <S.Timeline id="lp-progress">
+        <S.Container>
+          <S.TimelineHeader>
+            <S.Reveal className="lp-reveal">
+              <S.SectionLabel>Progress</S.SectionLabel>
+              <S.SectionTitle>구현 여정</S.SectionTitle>
+            </S.Reveal>
+          </S.TimelineHeader>
+          <S.Reveal className="lp-reveal">
+            <S.TimelineList>
+              {[
+                { dot: 'done', title: 'Phase 0~1 — 스캐폴딩 + 데이터 파이프라인', desc: 'FastAPI 구조, Docker Compose, TMDB/Kaggle/KOBIS/KMDb 수집, 하이브리드 RAG', badge: 'done' },
+                { dot: 'done', title: 'Phase 2~3 — LLM 체인 + Chat Agent', desc: '6개 LLM 체인, LangGraph 13노드 StateGraph, SSE/sync API, 148 tests', badge: 'done' },
+                { dot: 'done', title: 'Phase 4 — 추천 엔진 + 보안 강화', desc: '7노드 CF+CBF+MMR, VLM 이미지 분석, 세션 영속화, 보안 강화 — 308 tests', badge: 'done' },
+                { dot: 'active', title: '전체 재적재', desc: 'TMDB 1.17M건 스트리밍 배치 → 3DB 적재 (run_full_reload.py)', badge: 'active' },
+                { dot: '', title: 'Phase 5~8', desc: 'SSE 최적화, LangChain Tools, 콘텐츠 분석, 테스트 & 최적화', badge: 'pending' },
+              ].map((item) => (
+                <S.TimelineItem key={item.title}>
+                  <S.TimelineDot $variant={item.dot} />
+                  <S.TimelineContent>
+                    <h4>
+                      {item.title}
+                      <S.TimelineBadge $variant={item.badge}>
+                        {item.badge === 'done' ? '완료' : item.badge === 'active' ? '진행 중' : '예정'}
+                      </S.TimelineBadge>
+                    </h4>
+                    <p>{item.desc}</p>
+                  </S.TimelineContent>
+                </S.TimelineItem>
+              ))}
+            </S.TimelineList>
+          </S.Reveal>
+        </S.Container>
+      </S.Timeline>
 
       {/* ── CTA ── */}
-      <section className="lp-cta" id="lp-cta">
-        <div className="lp-container lp-reveal">
-          <div className="lp-cta__icon">🎬</div>
-          <h2 className="lp-cta__title">
-            오늘 밤 볼 영화,<br />
-            <span className="lp-gradient-text">지금 바로 찾아볼까요?</span>
-          </h2>
-          <p className="lp-cta__desc">
-            회원가입하고 나만의 영화 취향을 분석해보세요.<br />
-            카카오, 구글, 네이버로 10초 만에 시작할 수 있어요.
-          </p>
-          <div className="lp-cta__buttons">
-            <Link to={ROUTES.CHAT} className="lp-btn lp-btn--primary" style={{ fontSize: '1.05rem', padding: '16px 40px' }}>무료로 시작하기 &rarr;</Link>
-            <a href="#lp-features" onClick={e => scrollTo(e, 'lp-features')} className="lp-btn lp-btn--glass" style={{ fontSize: '1.05rem', padding: '16px 40px' }}>더 알아보기</a>
-          </div>
-          <p className="lp-cta__sub">신용카드 불필요 · 언제든지 탈퇴 가능</p>
-        </div>
-      </section>
+      <S.Cta id="lp-cta">
+        <S.Container>
+          <S.Reveal className="lp-reveal">
+            <S.CtaIcon>🎬</S.CtaIcon>
+            <S.CtaTitle>
+              오늘 밤 볼 영화,<br />
+              <S.GradientText>지금 바로 찾아볼까요?</S.GradientText>
+            </S.CtaTitle>
+            <S.CtaDesc>
+              회원가입하고 나만의 영화 취향을 분석해보세요.<br />
+              카카오, 구글, 네이버로 10초 만에 시작할 수 있어요.
+            </S.CtaDesc>
+            <S.CtaButtons>
+              <S.CtaBtnPrimary as={Link} to={ROUTES.CHAT}>무료로 시작하기 &rarr;</S.CtaBtnPrimary>
+              <S.CtaBtnGlass as="a" href="#lp-features" onClick={e => scrollTo(e, 'lp-features')}>
+                더 알아보기
+              </S.CtaBtnGlass>
+            </S.CtaButtons>
+            <S.CtaSub>신용카드 불필요 · 언제든지 탈퇴 가능</S.CtaSub>
+          </S.Reveal>
+        </S.Container>
+      </S.Cta>
 
       {/* ── 푸터 ── */}
-      <footer className="lp-footer">
-        <div className="lp-container lp-footer__inner">
-          <span className="lp-footer__text"><span>MONGLEPICK</span> — AI Movie Recommendation Platform</span>
-          <div className="lp-footer__links">
-            <span>이용약관</span>
-            <span>개인정보처리방침</span>
-            <span>고객센터</span>
-          </div>
-          <span className="lp-footer__text">&copy; 2026 몽글픽. All rights reserved.</span>
-        </div>
-      </footer>
-    </div>
+      <S.LpFooter>
+        <S.Container>
+          <S.FooterInner>
+            <S.FooterText><span>MONGLEPICK</span> — AI Movie Recommendation Platform</S.FooterText>
+            <S.FooterLinks>
+              <span>이용약관</span>
+              <span>개인정보처리방침</span>
+              <span>고객센터</span>
+            </S.FooterLinks>
+            <S.FooterText>&copy; 2026 몽글픽. All rights reserved.</S.FooterText>
+          </S.FooterInner>
+        </S.Container>
+      </S.LpFooter>
+    </S.LandingWrapper>
   );
 }

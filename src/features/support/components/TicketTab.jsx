@@ -29,10 +29,9 @@
  * @param {Function} props.formatDate - 날짜 포맷팅 함수
  */
 
-import { Link } from 'react-router-dom';
 import { ROUTES } from '../../../shared/constants/routes';
 import Loading from '../../../shared/components/Loading/Loading';
-import './TicketTab.css';
+import * as S from './TicketTab.styled';
 
 export default function TicketTab({
   activeSection,
@@ -70,51 +69,43 @@ export default function TicketTab({
 
         {!isAuthenticated ? (
           /* 비인증 사용자 — 로그인 유도 */
-          <div className="ticket-tab__login-prompt">
-            <p className="ticket-tab__login-prompt-text">
+          <S.LoginPrompt>
+            <S.LoginPromptText>
               로그인 후 이용 가능합니다.
-            </p>
-            <Link to={ROUTES.LOGIN} className="ticket-tab__login-prompt-link">
+            </S.LoginPromptText>
+            <S.LoginPromptLink to={ROUTES.LOGIN}>
               로그인하기
-            </Link>
-          </div>
+            </S.LoginPromptLink>
+          </S.LoginPrompt>
         ) : ticketSuccess ? (
           /* 티켓 생성 성공 화면 */
-          <div className="ticket-tab__success">
-            <div className="ticket-tab__success-icon" aria-hidden="true">
+          <S.Success>
+            <S.SuccessIcon aria-hidden="true">
               &#10003;
-            </div>
-            <h3 className="ticket-tab__success-title">
+            </S.SuccessIcon>
+            <S.SuccessTitle>
               문의가 등록되었습니다
-            </h3>
-            <p className="ticket-tab__success-text">
+            </S.SuccessTitle>
+            <S.SuccessText>
               담당자가 확인 후 빠르게 답변드리겠습니다.
               <br />
               "내 문의 내역" 탭에서 처리 상태를 확인할 수 있습니다.
-            </p>
-            <button
-              className="ticket-tab__success-btn"
-              onClick={onResetForm}
-            >
+            </S.SuccessText>
+            <S.SuccessBtn onClick={onResetForm}>
               새 문의하기
-            </button>
-          </div>
+            </S.SuccessBtn>
+          </S.Success>
         ) : (
           /* 문의 등록 폼 */
-          <form
-            className="ticket-tab__form"
-            onSubmit={onSubmit}
-            noValidate
-          >
+          <S.Form onSubmit={onSubmit} noValidate>
             {/* 카테고리 선택 */}
-            <div className="ticket-tab__form-group">
-              <label htmlFor="ticket-category" className="ticket-tab__form-label">
+            <S.FormGroup>
+              <S.FormLabel htmlFor="ticket-category">
                 카테고리
-                <span className="ticket-tab__form-required" aria-hidden="true">*</span>
-              </label>
-              <select
+                <S.FormRequired aria-hidden="true">*</S.FormRequired>
+              </S.FormLabel>
+              <S.FormSelect
                 id="ticket-category"
-                className="ticket-tab__form-select"
                 value={ticketCategory}
                 onChange={(e) => onCategoryChange(e.target.value)}
                 aria-required="true"
@@ -126,24 +117,23 @@ export default function TicketTab({
                     {opt.label}
                   </option>
                 ))}
-              </select>
+              </S.FormSelect>
               {formErrors.category && (
-                <p id="ticket-category-error" className="ticket-tab__form-error" role="alert">
+                <S.FormError id="ticket-category-error" role="alert">
                   {formErrors.category}
-                </p>
+                </S.FormError>
               )}
-            </div>
+            </S.FormGroup>
 
             {/* 제목 입력 */}
-            <div className="ticket-tab__form-group">
-              <label htmlFor="ticket-title" className="ticket-tab__form-label">
+            <S.FormGroup>
+              <S.FormLabel htmlFor="ticket-title">
                 제목
-                <span className="ticket-tab__form-required" aria-hidden="true">*</span>
-              </label>
-              <input
+                <S.FormRequired aria-hidden="true">*</S.FormRequired>
+              </S.FormLabel>
+              <S.FormInput
                 id="ticket-title"
                 type="text"
-                className="ticket-tab__form-input"
                 placeholder="문의 제목을 입력하세요"
                 value={ticketTitle}
                 onChange={(e) => onTitleChange(e.target.value)}
@@ -152,32 +142,31 @@ export default function TicketTab({
                 aria-invalid={!!formErrors.title}
                 aria-describedby={formErrors.title ? 'ticket-title-error' : 'ticket-title-hint'}
               />
-              <div className="ticket-tab__form-char-count">
-                <span className={ticketTitle.length > 100 ? 'ticket-tab__form-char-count--over' : ''}>
+              <S.CharCount>
+                <S.CharCountValue $over={ticketTitle.length > 100}>
                   {ticketTitle.length}
-                </span>
+                </S.CharCountValue>
                 /100
-              </div>
+              </S.CharCount>
               {formErrors.title ? (
-                <p id="ticket-title-error" className="ticket-tab__form-error" role="alert">
+                <S.FormError id="ticket-title-error" role="alert">
                   {formErrors.title}
-                </p>
+                </S.FormError>
               ) : (
-                <p id="ticket-title-hint" className="ticket-tab__form-hint">
+                <S.FormHint id="ticket-title-hint">
                   2~100자 이내로 작성해주세요.
-                </p>
+                </S.FormHint>
               )}
-            </div>
+            </S.FormGroup>
 
             {/* 내용 입력 */}
-            <div className="ticket-tab__form-group">
-              <label htmlFor="ticket-content" className="ticket-tab__form-label">
+            <S.FormGroup>
+              <S.FormLabel htmlFor="ticket-content">
                 내용
-                <span className="ticket-tab__form-required" aria-hidden="true">*</span>
-              </label>
-              <textarea
+                <S.FormRequired aria-hidden="true">*</S.FormRequired>
+              </S.FormLabel>
+              <S.FormTextarea
                 id="ticket-content"
-                className="ticket-tab__form-textarea"
                 placeholder="문의 내용을 상세히 작성해주세요"
                 value={ticketContent}
                 onChange={(e) => onContentChange(e.target.value)}
@@ -186,32 +175,28 @@ export default function TicketTab({
                 aria-invalid={!!formErrors.content}
                 aria-describedby={formErrors.content ? 'ticket-content-error' : 'ticket-content-hint'}
               />
-              <div className="ticket-tab__form-char-count">
-                <span className={ticketContent.length > 2000 ? 'ticket-tab__form-char-count--over' : ''}>
+              <S.CharCount>
+                <S.CharCountValue $over={ticketContent.length > 2000}>
                   {ticketContent.length}
-                </span>
+                </S.CharCountValue>
                 /2,000
-              </div>
+              </S.CharCount>
               {formErrors.content ? (
-                <p id="ticket-content-error" className="ticket-tab__form-error" role="alert">
+                <S.FormError id="ticket-content-error" role="alert">
                   {formErrors.content}
-                </p>
+                </S.FormError>
               ) : (
-                <p id="ticket-content-hint" className="ticket-tab__form-hint">
+                <S.FormHint id="ticket-content-hint">
                   10~2,000자 이내로 작성해주세요.
-                </p>
+                </S.FormHint>
               )}
-            </div>
+            </S.FormGroup>
 
             {/* 제출 버튼 */}
-            <button
-              type="submit"
-              className="ticket-tab__submit-btn"
-              disabled={isSubmitting}
-            >
+            <S.SubmitBtn type="submit" disabled={isSubmitting}>
               {isSubmitting ? '등록 중...' : '문의 등록'}
-            </button>
-          </form>
+            </S.SubmitBtn>
+          </S.Form>
         )}
       </section>
     );
@@ -245,51 +230,40 @@ export default function TicketTab({
         ) : (
           <>
             {/* 티켓 목록 */}
-            <div className="ticket-tab__list" role="list">
+            <S.List role="list">
               {myTickets.content.map((ticket) => (
-                <div
-                  key={ticket.ticketId}
-                  className="ticket-tab__item"
-                  role="listitem"
-                >
-                  <div className="ticket-tab__item-info">
-                    <p className="ticket-tab__item-title">{ticket.title}</p>
-                    <div className="ticket-tab__item-meta">
-                      <span className="ticket-tab__item-category-badge">
+                <S.Item key={ticket.ticketId} role="listitem">
+                  <S.ItemInfo>
+                    <S.ItemTitle>{ticket.title}</S.ItemTitle>
+                    <S.ItemMeta>
+                      <S.ItemCategoryBadge>
                         {categoryLabelMap[ticket.category] || ticket.category}
-                      </span>
-                      <span className="ticket-tab__item-date">
+                      </S.ItemCategoryBadge>
+                      <S.ItemDate>
                         {formatDate(ticket.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-                  <span
-                    className={[
-                      'ticket-tab__item-status',
-                      `ticket-tab__item-status--${ticket.status}`,
-                    ].join(' ')}
-                  >
+                      </S.ItemDate>
+                    </S.ItemMeta>
+                  </S.ItemInfo>
+                  <S.StatusBadge $status={ticket.status}>
                     {statusLabelMap[ticket.status] || ticket.status}
-                  </span>
-                </div>
+                  </S.StatusBadge>
+                </S.Item>
               ))}
-            </div>
+            </S.List>
 
             {/* 페이지네이션 */}
             {myTickets.totalPages > 1 && (
-              <div className="ticket-tab__pagination">
-                <button
-                  className="ticket-tab__pagination-btn"
+              <S.Pagination>
+                <S.PaginationBtn
                   onClick={() => onPageChange((prev) => Math.max(0, prev - 1))}
                   disabled={ticketPage === 0}
                 >
                   이전
-                </button>
-                <span className="ticket-tab__pagination-info">
+                </S.PaginationBtn>
+                <S.PaginationInfo>
                   {ticketPage + 1} / {myTickets.totalPages}
-                </span>
-                <button
-                  className="ticket-tab__pagination-btn"
+                </S.PaginationInfo>
+                <S.PaginationBtn
                   onClick={() =>
                     onPageChange((prev) =>
                       Math.min(myTickets.totalPages - 1, prev + 1)
@@ -298,8 +272,8 @@ export default function TicketTab({
                   disabled={ticketPage >= myTickets.totalPages - 1}
                 >
                   다음
-                </button>
-              </div>
+                </S.PaginationBtn>
+              </S.Pagination>
             )}
           </>
         )}

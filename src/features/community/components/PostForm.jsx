@@ -15,7 +15,7 @@
 import { useState } from 'react';
 /* 유효성 검사 유틸 — shared/utils에서 가져옴 */
 import { validatePostTitle, validateContent } from '../../../shared/utils/validators';
-import './PostForm.css';
+import * as S from './PostForm.styled';
 
 /** 카테고리 선택 옵션 목록 */
 const CATEGORY_OPTIONS = [
@@ -68,47 +68,47 @@ export default function PostForm({ onSubmit, initialData, isSubmitting = false, 
   };
 
   return (
-    <form className="post-form" onSubmit={handleSubmit} noValidate>
+    <S.Wrapper onSubmit={handleSubmit} noValidate>
       {/* 카테고리 선택 */}
-      <div className="post-form__field">
-        <label className="post-form__label">카테고리</label>
-        <div className="post-form__categories">
+      <S.Field>
+        <S.Label>카테고리</S.Label>
+        <S.Categories>
           {CATEGORY_OPTIONS.map((opt) => (
-            <button
+            <S.CategoryBtn
               key={opt.value}
               type="button"
-              className={`post-form__category-btn ${category === opt.value ? 'post-form__category-btn--active' : ''}`}
+              $active={category === opt.value}
               onClick={() => setCategory(opt.value)}
               disabled={isSubmitting}
             >
               {opt.label}
-            </button>
+            </S.CategoryBtn>
           ))}
-        </div>
-      </div>
+        </S.Categories>
+      </S.Field>
 
       {/* 제목 입력 */}
-      <div className="post-form__field">
-        <label htmlFor="post-title" className="post-form__label">제목</label>
-        <input
+      <S.Field>
+        <S.Label htmlFor="post-title">제목</S.Label>
+        <S.Input
           id="post-title"
           type="text"
-          className={`post-form__input ${errors.title ? 'post-form__input--error' : ''}`}
+          $error={!!errors.title}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="제목을 입력하세요"
           disabled={isSubmitting}
           maxLength={100}
         />
-        {errors.title && <span className="post-form__error">{errors.title}</span>}
-      </div>
+        {errors.title && <S.ErrorMsg>{errors.title}</S.ErrorMsg>}
+      </S.Field>
 
       {/* 내용 입력 */}
-      <div className="post-form__field">
-        <label htmlFor="post-content" className="post-form__label">내용</label>
-        <textarea
+      <S.Field>
+        <S.Label htmlFor="post-content">내용</S.Label>
+        <S.Textarea
           id="post-content"
-          className={`post-form__textarea ${errors.content ? 'post-form__textarea--error' : ''}`}
+          $error={!!errors.content}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="내용을 입력하세요 (10자 이상)"
@@ -117,32 +117,30 @@ export default function PostForm({ onSubmit, initialData, isSubmitting = false, 
           maxLength={5000}
         />
         {/* 글자 수 표시 */}
-        <div className="post-form__char-count">
+        <S.CharCount>
           <span>{content.length} / 5,000</span>
-        </div>
-        {errors.content && <span className="post-form__error">{errors.content}</span>}
-      </div>
+        </S.CharCount>
+        {errors.content && <S.ErrorMsg>{errors.content}</S.ErrorMsg>}
+      </S.Field>
 
       {/* 버튼 영역 */}
-      <div className="post-form__actions">
+      <S.Actions>
         {onCancel && (
-          <button
+          <S.CancelBtn
             type="button"
-            className="post-form__btn post-form__btn--cancel"
             onClick={onCancel}
             disabled={isSubmitting}
           >
             취소
-          </button>
+          </S.CancelBtn>
         )}
-        <button
+        <S.SubmitBtn
           type="submit"
-          className="post-form__btn post-form__btn--submit"
           disabled={isSubmitting}
         >
           {isSubmitting ? '등록 중...' : (initialData ? '수정하기' : '등록하기')}
-        </button>
-      </div>
-    </form>
+        </S.SubmitBtn>
+      </S.Actions>
+    </S.Wrapper>
   );
 }

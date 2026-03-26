@@ -41,7 +41,7 @@ import OrderHistory from '../components/OrderHistory';
 
 /* 포맷 유틸 — shared/utils에서 가져옴 */
 import { formatDate, formatNumberWithComma as formatNumber } from '../../../shared/utils/formatters';
-import './PaymentPage.css';
+import * as S from './PaymentPage.styled';
 
 /* ── 상수 정의 ── */
 
@@ -375,36 +375,36 @@ export default function PaymentPage() {
     subscriptionStatus?.status === 'ACTIVE';
 
   return (
-    <div className="payment-page">
-      <div className="payment-page__inner">
+    <S.Page>
+      <S.Inner>
         {/* 페이지 제목 */}
-        <h1 className="payment-page__title">결제 / 구독</h1>
+        <S.Title>결제 / 구독</S.Title>
 
         {/* 에러 메시지 */}
         {error && (
-          <div className="payment-page__error" role="alert">
+          <S.ErrorMsg role="alert">
             {error}
-          </div>
+          </S.ErrorMsg>
         )}
 
         {/* 성공 메시지 */}
         {successMsg && (
-          <div className="payment-page__success" role="status">
+          <S.SuccessMsg role="status">
             {successMsg}
-          </div>
+          </S.SuccessMsg>
         )}
 
         {/* 섹션 1: 구독 상품 */}
-        <section className="payment-page__section">
-          <h2 className="payment-page__section-title">구독 상품</h2>
-          <p className="payment-page__section-desc">
+        <S.Section>
+          <S.SectionTitle>구독 상품</S.SectionTitle>
+          <S.SectionDesc>
             구독하면 매 주기마다 포인트가 자동 지급됩니다.
-          </p>
+          </S.SectionDesc>
 
           {isLoadingPlans ? (
             <Loading message="구독 상품 로딩 중..." />
           ) : (
-            <div className="payment-page__plans-grid">
+            <S.PlansGrid>
               {plans.map((plan) => (
                 <SubscriptionCard
                   key={plan.planCode}
@@ -414,16 +414,16 @@ export default function PaymentPage() {
                   formatNumber={formatNumber}
                 />
               ))}
-            </div>
+            </S.PlansGrid>
           )}
-        </section>
+        </S.Section>
 
         {/* 섹션 2: 포인트 팩 */}
-        <section className="payment-page__section">
-          <h2 className="payment-page__section-title">포인트 충전</h2>
-          <p className="payment-page__section-desc">
+        <S.Section>
+          <S.SectionTitle>포인트 충전</S.SectionTitle>
+          <S.SectionDesc>
             필요한 만큼 포인트를 충전하세요.
-          </p>
+          </S.SectionDesc>
 
           <PointPackSection
             packs={POINT_PACKS}
@@ -431,11 +431,11 @@ export default function PaymentPage() {
             onBuyPack={handleBuyPack}
             formatNumber={formatNumber}
           />
-        </section>
+        </S.Section>
 
         {/* 섹션 3: 내 구독 상태 */}
-        <section className="payment-page__section">
-          <h2 className="payment-page__section-title">내 구독 상태</h2>
+        <S.Section>
+          <S.SectionTitle>내 구독 상태</S.SectionTitle>
 
           <SubscriptionStatus
             subscriptionStatus={subscriptionStatus}
@@ -445,18 +445,18 @@ export default function PaymentPage() {
             onCancel={handleCancelSubscription}
             formatDate={formatDate}
           />
-        </section>
+        </S.Section>
 
         {/* 섹션 4: 결제 내역 */}
-        <section className="payment-page__section">
-          <h2 className="payment-page__section-title">
+        <S.Section>
+          <S.SectionTitle>
             결제 내역
             {orders.totalElements > 0 && (
-              <span className="payment-page__orders-count">
+              <S.OrdersCount>
                 ({formatNumber(orders.totalElements)}건)
-              </span>
+              </S.OrdersCount>
             )}
-          </h2>
+          </S.SectionTitle>
 
           <OrderHistory
             orders={orders}
@@ -466,8 +466,8 @@ export default function PaymentPage() {
             formatNumber={formatNumber}
             formatDate={formatDate}
           />
-        </section>
-      </div>
-    </div>
+        </S.Section>
+      </S.Inner>
+    </S.Page>
   );
 }

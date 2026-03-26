@@ -19,22 +19,22 @@ import { validateEmail } from '../../../shared/utils/validators';
 import { ROUTES } from '../../../shared/constants/routes';
 /* OAuth URL 생성 유틸 — shared/constants에서 가져옴 */
 import { getOAuth2AuthorizationUrl } from '../../../shared/constants/oauth';
-import './LoginForm.css';
+import * as S from './LoginForm.styled';
 
 export default function LoginForm() {
-  // 폼 입력값 상태
-  const [email, setEmail] = useState('');
+  /* 폼 입력값 상태 */
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  // 필드별 에러 메시지 상태
-  const [errors, setErrors] = useState({});
-  // API 호출 중 상태
+  /* 필드별 에러 메시지 상태 */
+  const [errors, setErrors]           = useState({});
+  /* API 호출 중 상태 */
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // 서버 에러 메시지
-  const [serverError, setServerError] = useState('');
+  /* 서버 에러 메시지 */
+  const [serverError, setServerError]   = useState('');
 
-  // 인증 Context에서 login 함수 가져오기
-  const login = useAuthStore((s) => s.login);
-  // 페이지 이동용 navigate
+  /* 인증 Context에서 login 함수 가져오기 */
+  const login    = useAuthStore((s) => s.login);
+  /* 페이지 이동용 navigate */
   const navigate = useNavigate();
 
   /**
@@ -45,13 +45,13 @@ export default function LoginForm() {
   const validateForm = () => {
     const newErrors = {};
 
-    // 이메일 검증
+    /* 이메일 검증 */
     const emailResult = validateEmail(email);
     if (!emailResult.isValid) {
       newErrors.email = emailResult.message;
     }
 
-    // 비밀번호 검증 (로그인은 최소 입력 여부만 확인)
+    /* 비밀번호 검증 (로그인은 최소 입력 여부만 확인) */
     if (!password) {
       newErrors.password = '비밀번호를 입력해주세요.';
     }
@@ -69,123 +69,149 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 클라이언트 유효성 검사
+    /* 클라이언트 유효성 검사 */
     if (!validateForm()) return;
 
     setIsSubmitting(true);
     setServerError('');
 
     try {
-      // 로그인 API 호출
+      /* 로그인 API 호출 */
       const response = await loginAPI({ email, password });
 
-      // AuthContext에 인증 정보 저장
+      /* AuthContext에 인증 정보 저장 */
       login({
-        accessToken: response.accessToken,
+        accessToken:  response.accessToken,
         refreshToken: response.refreshToken,
-        user: response.user,
+        user:         response.user,
       });
 
-      // 홈 페이지로 리다이렉트
+      /* 홈 페이지로 리다이렉트 */
       navigate(ROUTES.HOME);
     } catch (err) {
-      // 서버 에러 메시지 표시
+      /* 서버 에러 메시지 표시 */
       setServerError(err.message || '로그인에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  /**
+   * 테스트 유저 로그인 핸들러.
+   * 개발/테스트 환경에서 고정된 테스트 계정으로 로그인한다.
+   */
+  const handleTestLogin = async () => {
+    setIsSubmitting(true);
+    setServerError('');
+    try {
+      const response = await loginAPI({
+        email:    'e2e_v2@monglepick.com',
+        password: 'Test1234!',
+      });
+      login({
+        accessToken:  response.accessToken,
+        refreshToken: response.refreshToken,
+        user:         response.user,
+      });
+      navigate(ROUTES.HOME);
+    } catch (err) {
+      setServerError(err.message || '테스트 유저 로그인에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <form className="login-form" onSubmit={handleSubmit} noValidate>
+    <S.Form onSubmit={handleSubmit} noValidate>
       {/* 폼 제목 */}
-      <h2 className="login-form__title">로그인</h2>
-      <p className="login-form__subtitle">몽글픽에 오신 것을 환영합니다</p>
+      <S.Title>로그인</S.Title>
+      <S.Subtitle>몽글픽에 오신 것을 환영합니다</S.Subtitle>
 
       {/* 서버 에러 메시지 */}
-      {serverError && (
-        <div className="login-form__error-banner">{serverError}</div>
-      )}
+      {serverError && <S.ErrorBanner>{serverError}</S.ErrorBanner>}
 
       {/* 이메일 입력 필드 */}
-      <div className="login-form__field">
-        <label htmlFor="login-email" className="login-form__label">이메일</label>
-        <input
+      <S.Field>
+        <S.Label htmlFor="login-email">이메일</S.Label>
+        <S.Input
           id="login-email"
           type="email"
-          className={`login-form__input ${errors.email ? 'login-form__input--error' : ''}`}
+          $error={!!errors.email}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="example@email.com"
           autoComplete="email"
           disabled={isSubmitting}
         />
-        {errors.email && <span className="login-form__error">{errors.email}</span>}
-      </div>
+        {errors.email && <S.FieldError>{errors.email}</S.FieldError>}
+      </S.Field>
 
       {/* 비밀번호 입력 필드 */}
-      <div className="login-form__field">
-        <label htmlFor="login-password" className="login-form__label">비밀번호</label>
-        <input
+      <S.Field>
+        <S.Label htmlFor="login-password">비밀번호</S.Label>
+        <S.Input
           id="login-password"
           type="password"
-          className={`login-form__input ${errors.password ? 'login-form__input--error' : ''}`}
+          $error={!!errors.password}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="비밀번호를 입력하세요"
           autoComplete="current-password"
           disabled={isSubmitting}
         />
-        {errors.password && <span className="login-form__error">{errors.password}</span>}
-      </div>
+        {errors.password && <S.FieldError>{errors.password}</S.FieldError>}
+      </S.Field>
 
       {/* 로그인 버튼 */}
-      <button
-        type="submit"
-        className="login-form__submit"
-        disabled={isSubmitting}
-      >
+      <S.SubmitButton type="submit" disabled={isSubmitting}>
         {isSubmitting ? '로그인 중...' : '로그인'}
-      </button>
+      </S.SubmitButton>
+
+      {/* 테스트 유저 로그인 버튼 — 개발/테스트 환경용 */}
+      <S.TestLoginButton
+        type="button"
+        disabled={isSubmitting}
+        onClick={handleTestLogin}
+      >
+        테스트 유저로 로그인
+      </S.TestLoginButton>
 
       {/* 소셜 로그인 구분선 */}
-      <div className="login-form__divider">
-        <span>또는</span>
-      </div>
+      <S.Divider><span>또는</span></S.Divider>
 
       {/* 소셜 로그인 버튼 */}
-      <div className="login-form__social">
-        <button
+      <S.SocialList>
+        <S.SocialButton
           type="button"
-          className="login-form__social-btn login-form__social-btn--google"
+          $provider="google"
           onClick={() => { window.location.href = getOAuth2AuthorizationUrl('google'); }}
           disabled={isSubmitting}
         >
           Google로 로그인
-        </button>
-        <button
+        </S.SocialButton>
+        <S.SocialButton
           type="button"
-          className="login-form__social-btn login-form__social-btn--kakao"
+          $provider="kakao"
           onClick={() => { window.location.href = getOAuth2AuthorizationUrl('kakao'); }}
           disabled={isSubmitting}
         >
           카카오로 로그인
-        </button>
-        <button
+        </S.SocialButton>
+        <S.SocialButton
           type="button"
-          className="login-form__social-btn login-form__social-btn--naver"
+          $provider="naver"
           onClick={() => { window.location.href = getOAuth2AuthorizationUrl('naver'); }}
           disabled={isSubmitting}
         >
           네이버로 로그인
-        </button>
-      </div>
+        </S.SocialButton>
+      </S.SocialList>
 
-      {/* 회원가입 링크 */}
-      <p className="login-form__footer">
+      {/* 회원가입 링크 — as={Link}로 react-router-dom 라우팅 유지 */}
+      <S.Footer>
         계정이 없으신가요?{' '}
-        <Link to={ROUTES.SIGNUP} className="login-form__link">회원가입</Link>
-      </p>
-    </form>
+        <S.TextLink as={Link} to={ROUTES.SIGNUP}>회원가입</S.TextLink>
+      </S.Footer>
+    </S.Form>
   );
 }

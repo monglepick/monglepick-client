@@ -16,29 +16,28 @@
  * @param {boolean} [props.loading=false] - 로딩 상태
  */
 
-import { Link } from 'react-router-dom';
 /* 포맷팅 유틸 — shared/utils에서 가져옴 */
 import { formatRelativeTime, truncateText } from '../../../shared/utils/formatters';
 /* 스켈레톤 로더 — shared/components에서 가져옴 */
 import Skeleton from '../../../shared/components/Skeleton/Skeleton';
 /* 빈 상태 컴포넌트 — shared/components에서 가져옴 */
 import EmptyState from '../../../shared/components/EmptyState/EmptyState';
-import './PostList.css';
+import * as S from './PostList.styled';
 
 export default function PostList({ posts = [], loading = false }) {
   // 로딩 중 — 스켈레톤 3개 표시
   if (loading) {
     return (
-      <div className="post-list">
+      <S.Wrapper>
         {[1, 2, 3].map((n) => (
-          <div key={n} className="post-list__skeleton">
+          <S.SkeletonItem key={n}>
             <Skeleton variant="text" height="16px" width="60px" />
             <Skeleton variant="text" height="20px" width="80%" />
             <Skeleton variant="text" height="14px" width="100%" />
             <Skeleton variant="text" height="12px" width="40%" />
-          </div>
+          </S.SkeletonItem>
         ))}
-      </div>
+      </S.Wrapper>
     );
   }
 
@@ -54,58 +53,55 @@ export default function PostList({ posts = [], loading = false }) {
   }
 
   return (
-    <div className="post-list">
+    <S.Wrapper>
       {posts.map((post) => (
-        <article
+        <S.Item
           key={post.id}
-          className={`post-list__item post-list__item--${post.category || 'free'}`}
+          $category={post.category || 'free'}
         >
-          <Link to={`/community/${post.id}`} className="post-list__link">
-            {/* 게시글 헤더 — 카테고리 + 작성 시간 */}
-            <div className="post-list__item-header">
+          {/* S.ItemLink는 styled(Link)이므로 to prop 그대로 전달 */}
+          <S.ItemLink to={`/community/${post.id}`}>
+            {/* 게시글 헤더 — 카테고리 배지 + 작성 시간 */}
+            <S.ItemHeader>
               {post.category && (
-                <span className={`post-list__category post-list__category--${post.category}`}>
+                <S.CategoryBadge $category={post.category}>
                   {post.category === 'review' ? '리뷰' :
                    post.category === 'question' ? '질문' : '자유'}
-                </span>
+                </S.CategoryBadge>
               )}
-              <span className="post-list__time">
+              <S.PostTime>
                 📅 {formatRelativeTime(post.createdAt)}
-              </span>
-            </div>
+              </S.PostTime>
+            </S.ItemHeader>
 
             {/* 제목 */}
-            <h3 className="post-list__title">{post.title}</h3>
+            <S.PostTitle>{post.title}</S.PostTitle>
 
             {/* 내용 미리보기 */}
-            <p className="post-list__preview">
+            <S.Preview>
               {truncateText(post.content, 120)}
-            </p>
+            </S.Preview>
 
-            {/* 하단 메타 정보 — 이모지 아이콘 추가 */}
-            <div className="post-list__meta">
+            {/* 하단 메타 정보 */}
+            <S.Meta>
               {/* 작성자 */}
-              <span className="post-list__author">
+              <S.Author>
                 👤 {post.author?.nickname || '익명'}
-              </span>
+              </S.Author>
 
               {/* 통계 (좋아요, 댓글) */}
-              <div className="post-list__stats">
+              <S.Stats>
                 {post.likeCount !== undefined && (
-                  <span className="post-list__stat">
-                    ❤️ {post.likeCount}
-                  </span>
+                  <S.Stat>❤️ {post.likeCount}</S.Stat>
                 )}
                 {post.commentCount !== undefined && (
-                  <span className="post-list__stat">
-                    💬 {post.commentCount}
-                  </span>
+                  <S.Stat>💬 {post.commentCount}</S.Stat>
                 )}
-              </div>
-            </div>
-          </Link>
-        </article>
+              </S.Stats>
+            </S.Meta>
+          </S.ItemLink>
+        </S.Item>
       ))}
-    </div>
+    </S.Wrapper>
   );
 }

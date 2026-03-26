@@ -24,7 +24,8 @@ import ReviewList from '../../review/components/ReviewList';
 import Loading from '../../../shared/components/Loading/Loading';
 /* 404 페이지 — API에서 영화를 찾을 수 없을 때 표시 */
 import NotFoundPage from '../../error/pages/NotFoundPage';
-import './MovieDetailPage.css';
+/* styled-components — MovieDetailPage 전용 스타일 */
+import * as S from './MovieDetailPage.styled';
 
 export default function MovieDetailPage() {
   // URL 파라미터에서 영화 ID 추출
@@ -118,9 +119,9 @@ export default function MovieDetailPage() {
   // 로딩 중
   if (isLoading) {
     return (
-      <div className="movie-detail-page">
+      <S.MovieDetailPageWrapper>
         <Loading message="영화 정보를 불러오는 중..." fullPage />
-      </div>
+      </S.MovieDetailPageWrapper>
     );
   }
 
@@ -132,18 +133,18 @@ export default function MovieDetailPage() {
   // 에러 발생
   if (error) {
     return (
-      <div className="movie-detail-page">
-        <div className="movie-detail-page__error">
-          <h2>오류가 발생했습니다</h2>
-          <p>{error}</p>
-        </div>
-      </div>
+      <S.MovieDetailPageWrapper>
+        <S.ErrorContainer>
+          <S.ErrorTitle>오류가 발생했습니다</S.ErrorTitle>
+          <S.ErrorDescription>{error}</S.ErrorDescription>
+        </S.ErrorContainer>
+      </S.MovieDetailPageWrapper>
     );
   }
 
   return (
-    <div className="movie-detail-page">
-      <div className="movie-detail-page__inner">
+    <S.MovieDetailPageWrapper>
+      <S.InnerContainer>
         {/* 영화 상세 카드 */}
         <MovieDetailCard
           movie={movie}
@@ -152,13 +153,13 @@ export default function MovieDetailPage() {
         />
 
         {/* 리뷰 섹션 */}
-        <section className="movie-detail-page__reviews">
-          <h2 className="movie-detail-page__section-title">
+        <S.ReviewsSection>
+          <S.SectionTitle>
             리뷰 {reviews.length > 0 && <span>({reviews.length})</span>}
-          </h2>
+          </S.SectionTitle>
           <ReviewList reviews={reviews} />
-        </section>
-      </div>
-    </div>
+        </S.ReviewsSection>
+      </S.InnerContainer>
+    </S.MovieDetailPageWrapper>
   );
 }
