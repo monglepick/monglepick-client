@@ -1,17 +1,15 @@
 /**
  * API 상수 정의 모듈.
  *
- * 백엔드 API의 기본 URL과 각 리소스별 엔드포인트 경로를 중앙 관리한다.
- * Vite 개발 서버의 프록시 설정과 함께 사용되며,
- * 프로덕션에서는 환경 변수(VITE_API_BASE_URL)로 오버라이드할 수 있다.
+ * 각 서비스별 엔드포인트 경로를 중앙 관리한다.
+ * 서비스 Base URL은 shared/api/serviceUrls.js에서 관리하며,
+ * 여기서는 상대 경로만 정의한다.
+ *
+ * 서비스 분류:
+ * - @service Backend  → backendApi  (Spring Boot :8080)
+ * - @service Agent    → agentApi / fetch (FastAPI :8000)
+ * - @service Recommend → recommendApi (FastAPI :8001)
  */
-
-/**
- * API 기본 URL.
- * 개발 환경: Vite 프록시가 경로별로 분배 (인증/포인트/결제 → :8080, 채팅 등 → :8000).
- * 프로덕션 환경: VITE_API_BASE_URL 환경 변수 사용.
- */
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 /** API 버전 접두사 */
 export const API_VERSION = '/api/v1';

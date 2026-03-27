@@ -15,6 +15,8 @@
  */
 
 import { useState, useEffect } from 'react';
+/* 커스텀 모달 훅 — window.alert 대체 */
+import { useModal } from '../../../shared/components/Modal';
 /* 커뮤니티 API — 같은 feature 내의 communityApi에서 가져옴 */
 import { getPosts, createPost } from '../api/communityApi';
 /* 인증 Context 훅 — app/providers에서 가져옴 */
@@ -33,6 +35,9 @@ const TABS = [
 ];
 
 export default function CommunityPage() {
+  /* 커스텀 모달 — window.alert 대체 */
+  const { showAlert } = useModal();
+
   // 현재 활성 탭
   const [activeTab, setActiveTab] = useState('posts');
   // 게시글 목록
@@ -81,7 +86,11 @@ export default function CommunityPage() {
       setPosts((prev) => [newPost, ...prev]);
       setShowForm(false);
     } catch (err) {
-      alert(err.message || '게시글 작성에 실패했습니다.');
+      await showAlert({
+        title: '작성 실패',
+        message: err.message || '게시글 작성에 실패했습니다.',
+        type: 'error',
+      });
     } finally {
       setIsSubmitting(false);
     }

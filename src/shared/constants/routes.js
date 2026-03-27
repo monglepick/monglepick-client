@@ -85,7 +85,7 @@ export function buildPath(route, params = {}) {
 export const NAV_ITEMS = [
   { path: ROUTES.HOME, label: '홈' },           // /home (영화 목록)
   { path: ROUTES.CHAT, label: 'AI 추천' },       // /chat (SSE 스트리밍 채팅)
-  { path: ROUTES.MATCH, label: 'Movie Match' },  // /match (두 영화 교집합 추천)
+  { path: ROUTES.MATCH, label: '둘이 영화 고르기' },  // /match (두 영화 교집합 추천)
   { path: ROUTES.COMMUNITY, label: '커뮤니티' }, // /community (게시판 + 리뷰)
   { path: ROUTES.SEARCH, label: '검색' },        // /search (키워드 + 필터)
 ];

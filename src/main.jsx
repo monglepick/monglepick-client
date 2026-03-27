@@ -12,13 +12,16 @@ import { ThemeProvider } from 'styled-components'
 import theme from './shared/styles/theme'
 import GlobalStyle from './shared/styles/GlobalStyle'
 /* global.css → GlobalStyle.js로 완전 대체 (Phase 6 완료) */
+import { ModalProvider } from './shared/components/Modal'
 import App from './app/App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <App />
+      <ModalProvider>
+        <App />
+      </ModalProvider>
     </ThemeProvider>
   </StrictMode>,
 )

@@ -46,36 +46,36 @@ const badgePop = keyframes`
 
 /** 컴포넌트 전체 컨테이너 — 글래스모피즘 카드 */
 const BadgeContainer = styled.div`
-  padding: var(--space-lg);
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
+  padding: ${({ theme }) => theme.spacing.lg};
+  background: ${({ theme }) => theme.glass.bg};
+  backdrop-filter: ${({ theme }) => theme.glass.blur};
+  border: 1px solid ${({ theme }) => theme.glass.border};
+  border-radius: ${({ theme }) => theme.radius.xl};
   animation: ${fadeInUp} 400ms ease both;
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: ${({ theme }) => theme.spacing.md};
 `;
 
 /** 섹션 헤더 — "공통 특성" 제목 */
 const SectionHeader = styled.div`
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: ${({ theme }) => theme.spacing.sm};
 `;
 
 /** 섹션 아이콘 */
 const SectionIcon = styled.span`
-  font-size: var(--text-lg);
+  font-size: ${({ theme }) => theme.typography.textLg};
 `;
 
 /** 섹션 제목 텍스트 */
 const SectionTitle = styled.h3`
   margin: 0;
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
+  font-size: ${({ theme }) => theme.typography.textBase};
+  font-weight: ${({ theme }) => theme.typography.fontSemibold};
   /* 그라디언트 텍스트 — 보라→시안 */
-  background: var(--gradient-text);
+  background: ${({ theme }) => theme.gradients.text};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -85,14 +85,14 @@ const SectionTitle = styled.h3`
 const BadgeGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: ${({ theme }) => theme.spacing.xs};
 `;
 
 /** 배지 그룹 레이블 (예: "장르", "무드") */
 const GroupLabel = styled.span`
-  font-size: var(--text-xs);
-  font-weight: var(--font-medium);
-  color: var(--text-muted);
+  font-size: ${({ theme }) => theme.typography.textXs};
+  font-weight: ${({ theme }) => theme.typography.fontMedium};
+  color: ${({ theme }) => theme.colors.textMuted};
   text-transform: uppercase;
   letter-spacing: 0.06em;
 `;
@@ -101,7 +101,7 @@ const GroupLabel = styled.span`
 const BadgeList = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-xs);
+  gap: ${({ theme }) => theme.spacing.xs};
 `;
 
 /**
@@ -112,10 +112,10 @@ const BadgeList = styled.div`
 const Badge = styled.span`
   display: inline-flex;
   align-items: center;
-  padding: 3px var(--space-sm);
-  border-radius: var(--radius-full);
-  font-size: var(--text-xs);
-  font-weight: var(--font-medium);
+  padding: 3px ${({ theme }) => theme.spacing.sm};
+  border-radius: ${({ theme }) => theme.radius.full};
+  font-size: ${({ theme }) => theme.typography.textXs};
+  font-weight: ${({ theme }) => theme.typography.fontMedium};
   animation: ${badgePop} 300ms ease both;
 
   /* 배지 인덱스별 등장 딜레이 (최대 12개) */
@@ -135,8 +135,8 @@ const Badge = styled.span`
 
 /** 장르 배지 — 보라색 계열 */
 const GenreBadge = styled(Badge)`
-  background: var(--primary-light);
-  color: var(--primary);
+  background: ${({ theme }) => theme.colors.primaryLight};
+  color: ${({ theme }) => theme.colors.primary};
   border: 1px solid rgba(124, 108, 240, 0.3);
 `;
 
@@ -157,28 +157,28 @@ const KeywordBadge = styled(Badge)`
 /** 인물(감독/배우) 배지 — 노란색 계열 */
 const PersonBadge = styled(Badge)`
   background: rgba(251, 191, 36, 0.12);
-  color: var(--warning);
+  color: ${({ theme }) => theme.colors.warning};
   border: 1px solid rgba(251, 191, 36, 0.25);
 `;
 
 /** 구분선 */
 const Divider = styled.hr`
   border: none;
-  border-top: 1px solid var(--border-light);
+  border-top: 1px solid ${({ theme }) => theme.colors.borderLight};
   margin: 0;
 `;
 
 /** 유사도 요약 텍스트 영역 */
 const SummaryText = styled.p`
   margin: 0;
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  line-height: var(--leading-relaxed);
+  font-size: ${({ theme }) => theme.typography.textSm};
+  color: ${({ theme }) => theme.colors.textSecondary};
+  line-height: ${({ theme }) => theme.typography.leadingRelaxed};
   font-style: italic;
 
   /* 인용 블록 느낌으로 왼쪽 보더 추가 */
-  padding-left: var(--space-md);
-  border-left: 2px solid var(--primary);
+  padding-left: ${({ theme }) => theme.spacing.md};
+  border-left: 2px solid ${({ theme }) => theme.colors.primary};
 `;
 
 // ── 컴포넌트 ──

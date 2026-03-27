@@ -55,14 +55,14 @@ const SelectorContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: ${({ theme }) => theme.spacing.sm};
 `;
 
 /** 레이블 텍스트 */
 const SelectorLabel = styled.span`
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--text-secondary);
+  font-size: ${({ theme }) => theme.typography.textSm};
+  font-weight: ${({ theme }) => theme.typography.fontSemibold};
+  color: ${({ theme }) => theme.colors.textSecondary};
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -77,25 +77,26 @@ const SearchInputWrapper = styled.div`
 /** 검색 입력창 */
 const SearchInput = styled.input`
   width: 100%;
-  padding: var(--space-sm) var(--space-md);
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
   padding-left: 40px; /* 아이콘 공간 */
-  background: var(--bg-input);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  color: var(--text-primary);
-  font-size: var(--text-base);
-  font-family: var(--font-family);
-  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  background: ${({ theme }) => theme.colors.bgInput};
+  border: 1px solid ${({ theme }) => theme.colors.borderDefault};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  color: ${({ theme }) => theme.colors.textPrimary};
+  font-size: ${({ theme }) => theme.typography.textBase};
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  transition: border-color ${({ theme }) => theme.transitions.base},
+              box-shadow ${({ theme }) => theme.transitions.base};
   outline: none;
   box-sizing: border-box;
 
   &::placeholder {
-    color: var(--text-muted);
+    color: ${({ theme }) => theme.colors.textMuted};
   }
 
   &:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-light);
+    border-color: ${({ theme }) => theme.colors.primary};
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primaryLight};
   }
 `;
 
@@ -103,8 +104,8 @@ const SearchInput = styled.input`
 const SearchIcon = styled.span`
   position: absolute;
   left: 12px;
-  color: var(--text-muted);
-  font-size: var(--text-base);
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: ${({ theme }) => theme.typography.textBase};
   pointer-events: none;
   user-select: none;
 `;
@@ -118,14 +119,14 @@ const Dropdown = styled.ul`
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  z-index: var(--z-dropdown);
+  z-index: ${({ theme }) => theme.zIndex.dropdown};
   list-style: none;
   margin: 0;
-  padding: var(--space-xs) 0;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  padding: ${({ theme }) => theme.spacing.xs} 0;
+  background: ${({ theme }) => theme.colors.bgElevated};
+  border: 1px solid ${({ theme }) => theme.colors.borderDefault};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  box-shadow: ${({ theme }) => theme.shadows.lg};
   max-height: 320px;
   overflow-y: auto;
   animation: ${dropdownFadeIn} 200ms ease;
@@ -138,8 +139,8 @@ const Dropdown = styled.ul`
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: var(--border-default);
-    border-radius: var(--radius-full);
+    background: ${({ theme }) => theme.colors.borderDefault};
+    border-radius: ${({ theme }) => theme.radius.full};
   }
 `;
 
@@ -147,13 +148,13 @@ const Dropdown = styled.ul`
 const DropdownItem = styled.li`
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
+  gap: ${({ theme }) => theme.spacing.sm};
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: background ${({ theme }) => theme.transitions.fast};
 
   &:hover {
-    background: var(--primary-light);
+    background: ${({ theme }) => theme.colors.primaryLight};
   }
 
   &:active {
@@ -166,8 +167,8 @@ const ItemPoster = styled.img`
   width: 36px;
   height: 54px;
   object-fit: cover;
-  border-radius: var(--radius-sm);
-  background: var(--bg-secondary);
+  border-radius: ${({ theme }) => theme.radius.sm};
+  background: ${({ theme }) => theme.colors.bgSecondary};
   flex-shrink: 0;
 `;
 
@@ -181,9 +182,9 @@ const ItemInfo = styled.div`
 
 /** 드롭다운 항목의 영화 제목 */
 const ItemTitle = styled.span`
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  color: var(--text-primary);
+  font-size: ${({ theme }) => theme.typography.textSm};
+  font-weight: ${({ theme }) => theme.typography.fontMedium};
+  color: ${({ theme }) => theme.colors.textPrimary};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -191,16 +192,16 @@ const ItemTitle = styled.span`
 
 /** 드롭다운 항목의 메타 정보 (연도 · 평점) */
 const ItemMeta = styled.span`
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
+  font-size: ${({ theme }) => theme.typography.textXs};
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 /** 로딩/빈 상태 드롭다운 메시지 */
 const DropdownMessage = styled.li`
-  padding: var(--space-md);
+  padding: ${({ theme }) => theme.spacing.md};
   text-align: center;
-  color: var(--text-muted);
-  font-size: var(--text-sm);
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: ${({ theme }) => theme.typography.textSm};
   list-style: none;
 `;
 
@@ -211,17 +212,17 @@ const DropdownMessage = styled.li`
 const SelectedCard = styled.div`
   display: flex;
   align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
+  gap: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  background: ${({ theme }) => theme.glass.bg};
+  backdrop-filter: ${({ theme }) => theme.glass.blur};
+  border: 1px solid ${({ theme }) => theme.glass.border};
+  border-radius: ${({ theme }) => theme.radius.lg};
   animation: ${cardSlideIn} 300ms ease;
-  transition: border-color var(--transition-base);
+  transition: border-color ${({ theme }) => theme.transitions.base};
 
   &:hover {
-    border-color: var(--primary);
+    border-color: ${({ theme }) => theme.colors.primary};
   }
 `;
 
@@ -230,8 +231,8 @@ const SelectedPoster = styled.img`
   width: 48px;
   height: 72px;
   object-fit: cover;
-  border-radius: var(--radius-sm);
-  background: var(--bg-secondary);
+  border-radius: ${({ theme }) => theme.radius.sm};
+  background: ${({ theme }) => theme.colors.bgSecondary};
   flex-shrink: 0;
 `;
 
@@ -246,9 +247,9 @@ const SelectedInfo = styled.div`
 
 /** 선택된 영화 제목 */
 const SelectedTitle = styled.span`
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
-  color: var(--text-primary);
+  font-size: ${({ theme }) => theme.typography.textBase};
+  font-weight: ${({ theme }) => theme.typography.fontSemibold};
+  color: ${({ theme }) => theme.colors.textPrimary};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -256,8 +257,8 @@ const SelectedTitle = styled.span`
 
 /** 선택된 영화 메타 정보 */
 const SelectedMeta = styled.span`
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
+  font-size: ${({ theme }) => theme.typography.textSm};
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 /** 선택 해제 버튼 */
@@ -266,15 +267,16 @@ const ClearButton = styled.button`
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: ${({ theme }) => theme.radius.full};
   background: rgba(248, 113, 113, 0.15);
-  color: var(--error);
-  font-size: var(--text-base);
+  color: ${({ theme }) => theme.colors.error};
+  font-size: ${({ theme }) => theme.typography.textBase};
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background var(--transition-fast), transform var(--transition-fast);
+  transition: background ${({ theme }) => theme.transitions.fast},
+              transform ${({ theme }) => theme.transitions.fast};
 
   &:hover {
     background: rgba(248, 113, 113, 0.3);
@@ -421,8 +423,8 @@ export default function MovieSelector({ label, selectedMovie, onSelect, onClear 
 
   return (
     <SelectorContainer ref={containerRef}>
-      {/* 레이블 */}
-      <SelectorLabel>{label}</SelectorLabel>
+      {/* 레이블 — 빈 문자열이면 렌더링하지 않음 */}
+      {label && <SelectorLabel>{label}</SelectorLabel>}
 
       {/* 영화가 선택된 경우: 선택 카드 표시 */}
       {selectedMovie ? (

@@ -8,6 +8,8 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+/* 커스텀 모달 훅 — window.alert 대체 */
+import { useModal } from '../../../shared/components/Modal';
 /* 영화 API — 같은 feature 내의 movieApi에서 가져옴 */
 import { getMovie } from '../api/movieApi';
 /* 리뷰 API — features/review에서 가져옴 */
@@ -28,6 +30,9 @@ import NotFoundPage from '../../error/pages/NotFoundPage';
 import * as S from './MovieDetailPage.styled';
 
 export default function MovieDetailPage() {
+  /* 커스텀 모달 — window.alert 대체 */
+  const { showAlert } = useModal();
+
   // URL 파라미터에서 영화 ID 추출
   const { id } = useParams();
   // 영화 상세 정보 상태
@@ -97,7 +102,11 @@ export default function MovieDetailPage() {
    */
   const handleWishlistToggle = async (movieId) => {
     if (!isAuthenticated) {
-      alert('위시리스트를 사용하려면 로그인이 필요합니다.');
+      await showAlert({
+        title: '로그인 필요',
+        message: '위시리스트를 사용하려면 로그인이 필요합니다.',
+        type: 'warning',
+      });
       return;
     }
 
@@ -112,7 +121,11 @@ export default function MovieDetailPage() {
         setIsWishlisted(true);
       }
     } catch (err) {
-      alert(err.message || '위시리스트 변경에 실패했습니다.');
+      await showAlert({
+        title: '오류',
+        message: err.message || '위시리스트 변경에 실패했습니다.',
+        type: 'error',
+      });
     }
   };
 

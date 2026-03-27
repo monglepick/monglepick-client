@@ -5,6 +5,8 @@
  * 인가 URL 생성 유틸리티를 제공한다.
  */
 
+import { SERVICE_URLS } from '../api/serviceUrls';
+
 /**
  * OAuth 제공자별 설정.
  * 클라이언트 ID는 환경변수(VITE_*_CLIENT_ID)로 주입한다.
@@ -78,6 +80,6 @@ export function buildOAuthUrl(provider) {
  * @returns {string} Backend OAuth2 인가 URL
  */
 export function getOAuth2AuthorizationUrl(provider) {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-  return `${baseUrl}/oauth2/authorization/${provider}`;
+  // Backend 서비스로 직접 호출 (Vite 프록시 제거 후 직접 URL 사용)
+  return `${SERVICE_URLS.BACKEND}/oauth2/authorization/${provider}`;
 }

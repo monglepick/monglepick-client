@@ -610,7 +610,7 @@ export default function LandingPage() {
               카카오, 구글, 네이버로 10초 만에 시작할 수 있어요.
             </S.CtaDesc>
             <S.CtaButtons>
-              <S.CtaBtnPrimary as={Link} to={ROUTES.CHAT}>무료로 시작하기 &rarr;</S.CtaBtnPrimary>
+              <S.CtaBtnPrimary as={Link} to={ROUTES.HOME}>무료로 시작하기 &rarr;</S.CtaBtnPrimary>
               <S.CtaBtnGlass as="a" href="#lp-features" onClick={e => scrollTo(e, 'lp-features')}>
                 더 알아보기
               </S.CtaBtnGlass>

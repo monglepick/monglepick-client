@@ -23,6 +23,8 @@ import styled, { keyframes, css } from 'styled-components';
 import { ROUTES, buildPath } from '../../../shared/constants/routes';
 /* 포맷터 유틸 */
 import { formatRating, truncateText, genreMapper } from '../../../shared/utils/formatters';
+/* 미디어쿼리 헬퍼 */
+import { media } from '../../../shared/styles/media';
 
 // ── 애니메이션 정의 ──
 
@@ -57,8 +59,8 @@ const CardWrapper = styled.article`
   cursor: pointer;
 
   &:hover > div {
-    border-color: var(--primary);
-    box-shadow: var(--shadow-glow);
+    border-color: ${({ theme }) => theme.colors.primary};
+    box-shadow: ${({ theme }) => theme.shadows.glow};
     transform: translateY(-2px);
   }
 `;
@@ -66,17 +68,17 @@ const CardWrapper = styled.article`
 /** 카드 내부 컨테이너 — 글래스모피즘 */
 const CardInner = styled.div`
   display: flex;
-  gap: var(--space-md);
-  padding: var(--space-md);
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  gap: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacing.md};
+  background: ${({ theme }) => theme.colors.bgCard};
+  border: 1px solid ${({ theme }) => theme.colors.borderDefault};
+  border-radius: ${({ theme }) => theme.radius.xl};
   transition:
-    border-color var(--transition-base),
-    box-shadow var(--transition-base),
-    transform var(--transition-base);
+    border-color ${({ theme }) => theme.transitions.base},
+    box-shadow ${({ theme }) => theme.transitions.base},
+    transform ${({ theme }) => theme.transitions.base};
 
-  @media (max-width: 480px) {
+  ${media.mobile} {
     flex-direction: column;
   }
 `;
@@ -92,11 +94,11 @@ const Poster = styled.img`
   width: 90px;
   height: 135px;
   object-fit: cover;
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
+  border-radius: ${({ theme }) => theme.radius.md};
+  background: ${({ theme }) => theme.colors.bgSecondary};
   display: block;
 
-  @media (max-width: 480px) {
+  ${media.mobile} {
     width: 100%;
     height: 180px;
   }
@@ -112,21 +114,21 @@ const RankBadge = styled.span`
   left: -6px;
   width: 26px;
   height: 26px;
-  border-radius: var(--radius-full);
+  border-radius: ${({ theme }) => theme.radius.full};
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
+  font-size: ${({ theme }) => theme.typography.textXs};
+  font-weight: ${({ theme }) => theme.typography.fontBold};
   color: #fff;
-  box-shadow: var(--shadow-md);
+  box-shadow: ${({ theme }) => theme.shadows.md};
 
   /* 1~3위 특별 색상, 4~5위 기본 보라 */
-  ${({ $rank }) => {
+  ${({ $rank, theme }) => {
     if ($rank === 1) return css`background: linear-gradient(135deg, #ffd700, #ffaa00);`;
     if ($rank === 2) return css`background: linear-gradient(135deg, #c0c0c0, #a0a0a0);`;
     if ($rank === 3) return css`background: linear-gradient(135deg, #cd7f32, #a0522d);`;
-    return css`background: var(--primary);`;
+    return css`background: ${theme.colors.primary};`;
   }}
 `;
 
@@ -134,7 +136,7 @@ const RankBadge = styled.span`
 const InfoArea = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: ${({ theme }) => theme.spacing.sm};
   flex: 1;
   min-width: 0;
 `;
@@ -149,9 +151,9 @@ const TitleRow = styled.div`
 /** 영화 제목 */
 const Title = styled.h4`
   margin: 0;
-  font-size: var(--text-base);
-  font-weight: var(--font-bold);
-  color: var(--text-primary);
+  font-size: ${({ theme }) => theme.typography.textBase};
+  font-weight: ${({ theme }) => theme.typography.fontBold};
+  color: ${({ theme }) => theme.colors.textPrimary};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -161,15 +163,15 @@ const Title = styled.h4`
 const MetaRow = styled.div`
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
+  gap: ${({ theme }) => theme.spacing.sm};
+  font-size: ${({ theme }) => theme.typography.textSm};
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 /** 별 평점 강조 */
 const RatingText = styled.span`
-  color: var(--star-filled);
-  font-weight: var(--font-semibold);
+  color: ${({ theme }) => theme.colors.starFilled};
+  font-weight: ${({ theme }) => theme.typography.fontSemibold};
 `;
 
 /** 장르 태그 목록 */
@@ -181,19 +183,19 @@ const GenreList = styled.div`
 
 /** 장르 태그 하나 */
 const GenreTag = styled.span`
-  padding: 2px var(--space-sm);
-  background: var(--primary-light);
-  color: var(--primary);
-  border-radius: var(--radius-full);
-  font-size: var(--text-xs);
-  font-weight: var(--font-medium);
+  padding: 2px ${({ theme }) => theme.spacing.sm};
+  background: ${({ theme }) => theme.colors.primaryLight};
+  color: ${({ theme }) => theme.colors.primary};
+  border-radius: ${({ theme }) => theme.radius.full};
+  font-size: ${({ theme }) => theme.typography.textXs};
+  font-weight: ${({ theme }) => theme.typography.fontMedium};
 `;
 
 /** 유사도 섹션 전체 래퍼 */
 const SimilaritySection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: ${({ theme }) => theme.spacing.xs};
 `;
 
 /** 유사도 항목 하나 (레이블 + 바) */
@@ -212,8 +214,8 @@ const SimilarityHeader = styled.div`
 
 /** 유사도 레이블 텍스트 */
 const SimilarityLabel = styled.span`
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
+  font-size: ${({ theme }) => theme.typography.textXs};
+  color: ${({ theme }) => theme.colors.textSecondary};
   /* 영화 제목이 너무 길 경우 말줄임 */
   white-space: nowrap;
   overflow: hidden;
@@ -223,17 +225,17 @@ const SimilarityLabel = styled.span`
 
 /** 유사도 퍼센트 텍스트 */
 const SimilarityPercent = styled.span`
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  color: var(--primary);
+  font-size: ${({ theme }) => theme.typography.textXs};
+  font-weight: ${({ theme }) => theme.typography.fontSemibold};
+  color: ${({ theme }) => theme.colors.primary};
   flex-shrink: 0;
 `;
 
 /** 프로그레스 바 배경 트랙 */
 const SimilarityTrack = styled.div`
   height: 6px;
-  background: var(--bg-elevated);
-  border-radius: var(--radius-full);
+  background: ${({ theme }) => theme.colors.bgElevated};
+  border-radius: ${({ theme }) => theme.radius.full};
   overflow: hidden;
 `;
 
@@ -244,15 +246,15 @@ const SimilarityTrack = styled.div`
  */
 const SimilarityFill = styled.div`
   height: 100%;
-  border-radius: var(--radius-full);
+  border-radius: ${({ theme }) => theme.radius.full};
   /* CSS 변수로 너비 전달 — fillBar 키프레임이 이 변수를 참조 */
   --bar-width: ${({ $percent }) => $percent}%;
   width: ${({ $percent }) => $percent}%;
   /* 영화A: 보라, 영화B: 시안 */
-  background: ${({ $color }) =>
+  background: ${({ $color, theme }) =>
     $color === 'cyan'
       ? 'linear-gradient(90deg, #06d6a0, #06b894)'
-      : 'linear-gradient(90deg, var(--primary), var(--primary-dark))'};
+      : `linear-gradient(90deg, ${theme.colors.primary}, ${theme.colors.primaryDark})`};
   animation: ${fillBar} 800ms ease both;
   /* rank 기반 카드 등장 딜레이 + 추가 딜레이 */
   animation-delay: ${({ $delay }) => $delay}ms;
@@ -261,13 +263,13 @@ const SimilarityFill = styled.div`
 /** 추천 이유 텍스트 */
 const Explanation = styled.p`
   margin: 0;
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  line-height: var(--leading-relaxed);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--bg-elevated);
-  border-radius: var(--radius-md);
-  border-left: 2px solid var(--primary);
+  font-size: ${({ theme }) => theme.typography.textSm};
+  color: ${({ theme }) => theme.colors.textSecondary};
+  line-height: ${({ theme }) => theme.typography.leadingRelaxed};
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  background: ${({ theme }) => theme.colors.bgElevated};
+  border-radius: ${({ theme }) => theme.radius.md};
+  border-left: 2px solid ${({ theme }) => theme.colors.primary};
 `;
 
 // ── 헬퍼 함수 ──

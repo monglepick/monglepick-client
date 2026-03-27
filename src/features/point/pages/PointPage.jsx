@@ -13,6 +13,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+/* 커스텀 모달 훅 — window.confirm/alert 대체 */
+import { useModal } from '../../../shared/components/Modal';
 /* 인증 Context 훅 — app/providers에서 가져옴 */
 import useAuthStore from '../../../shared/stores/useAuthStore';
 /* 포인트 API — 같은 feature 내의 pointApi에서 가져옴 */
@@ -41,6 +43,9 @@ import * as S from './PointPage.styled';
 const HISTORY_PAGE_SIZE = 10;
 
 export default function PointPage() {
+  /* 커스텀 모달 — window.confirm/alert 대체 */
+  const { showAlert, showConfirm } = useModal();
+
   /* ── 상태 관리 ── */
 
   /* 포인트 잔액 정보 (balance, grade, totalEarned) */
@@ -235,9 +240,12 @@ export default function PointPage() {
   const handleExchangeItem = async (item) => {
     if (!user?.id || exchangingItemId) return;
 
-    const confirmed = window.confirm(
-      `'${item.name}'을(를) ${formatNumber(item.price)}P로 교환하시겠습니까?`
-    );
+    const confirmed = await showConfirm({
+      title: '아이템 교환',
+      message: `'${item.name}'을(를) ${formatNumber(item.price)}P로 교환하시겠습니까?`,
+      type: 'confirm',
+      confirmLabel: '교환',
+    });
     if (!confirmed) return;
 
     setExchangingItemId(item.itemId);
@@ -245,7 +253,11 @@ export default function PointPage() {
 
     try {
       const result = await exchangeItem(item.itemId);
-      alert(`'${result.itemName || item.name}' 교환 완료! 잔액: ${formatNumber(result.balanceAfter)}P`);
+      await showAlert({
+        title: '교환 완료',
+        message: `'${result.itemName || item.name}' 교환 완료!\n잔액: ${formatNumber(result.balanceAfter)}P`,
+        type: 'success',
+      });
       await loadBalance();
     } catch (err) {
       setError(err.message || '아이템 교환에 실패했습니다.');

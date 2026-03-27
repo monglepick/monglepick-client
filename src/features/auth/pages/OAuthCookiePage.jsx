@@ -49,9 +49,10 @@ export default function OAuthCookiePage() {
         const response = await exchangeToken();
 
         // AuthContext에 인증 정보 저장
+        // refreshToken은 서버가 HttpOnly 쿠키로 관리하므로 body에 포함되지 않음
+        // accessToken만 localStorage에 저장하고, Refresh Token은 쿠키로 자동 처리됨
         login({
           accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
           user: response.user || { nickname: response.userNickname },
         });
 

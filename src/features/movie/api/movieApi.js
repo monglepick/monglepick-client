@@ -5,10 +5,10 @@
  * axios 인스턴스를 사용하며, 인증이 필요한 요청은 interceptor가 Authorization 헤더를 자동 추가한다.
  */
 
-/* 공용 axios 인스턴스 — JWT 자동 주입 + 401 갱신 */
-import api from '../../../shared/api/axiosInstance';
-/* API 상수 — shared/constants에서 가져옴 */
-import { MOVIE_ENDPOINTS } from '../../../shared/constants/api';
+/* 서비스별 axios 인스턴스 — Backend(영화 상세/인기), Recommend(검색) */
+import { backendApi, recommendApi } from '../../../shared/api/axiosInstance';
+/* API 상수 */
+import { MOVIE_ENDPOINTS, SEARCH_ENDPOINTS } from '../../../shared/constants/api';
 
 /**
  * 영화 상세 정보를 조회한다.
@@ -17,7 +17,7 @@ import { MOVIE_ENDPOINTS } from '../../../shared/constants/api';
  * @returns {Promise<Object>} 영화 상세 정보 객체
  */
 export async function getMovie(movieId) {
-  return api.get(MOVIE_ENDPOINTS.DETAIL(movieId));
+  return backendApi.get(MOVIE_ENDPOINTS.DETAIL(movieId));
 }
 
 function normalizeSearchMovie(movie) {
@@ -64,7 +64,7 @@ export async function searchMovies({
     params.sort_order = 'desc';
   }
 
-  const data = await api.get(MOVIE_ENDPOINTS.SEARCH, { params });
+  const data = await recommendApi.get(MOVIE_ENDPOINTS.SEARCH, { params });
   return {
     ...data,
     total: data?.pagination?.total || 0,
@@ -80,7 +80,7 @@ export async function searchMovies({
  * @returns {Promise<Object>} 인기 영화 목록 ({ movies: [], total: number })
  */
 export async function getPopularMovies(page = 1, size = 20) {
-  return api.get(MOVIE_ENDPOINTS.POPULAR, { params: { page, size } });
+  return backendApi.get(MOVIE_ENDPOINTS.POPULAR, { params: { page, size } });
 }
 
 /**
@@ -91,5 +91,5 @@ export async function getPopularMovies(page = 1, size = 20) {
  * @returns {Promise<Object>} 최신 영화 목록 ({ movies: [], total: number })
  */
 export async function getLatestMovies(page = 1, size = 20) {
-  return api.get(MOVIE_ENDPOINTS.LATEST, { params: { page, size } });
+  return backendApi.get(MOVIE_ENDPOINTS.LATEST, { params: { page, size } });
 }

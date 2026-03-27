@@ -46,11 +46,15 @@ export default function Header() {
 
   /**
    * 로그아웃 버튼 클릭 핸들러.
+   * useAuthStore.logout이 async (서버 로그아웃 포함)이므로 await로 완료를 기다린다.
+   * 서버 요청 실패 시에도 logout() 내부에서 best-effort 처리하므로
+   * 이 핸들러에서는 별도 에러 처리가 불필요하다.
    */
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    // 서버 로그아웃 + 클라이언트 상태 삭제가 완료될 때까지 대기
+    await logout();
     closeMobileMenu();
     navigate(ROUTES.LANDING);
   };

@@ -12,7 +12,7 @@
  * 처리 상태(status)를 타이핑 인디케이터로 보여준다.
  */
 
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 /* 커스텀 모달 훅 — window.confirm/alert 대체 */
 import { useModal } from '../../../shared/components/Modal';
 /* 인증 Context 훅 — app/providers에서 가져옴 (userId 전달용) */
@@ -233,47 +233,6 @@ export default function ChatWindow() {
   const maxInputLength = quotaError?.max_input_length ?? DEFAULT_MAX_INPUT_LENGTH;
   // 글자수 비율 (0.0 ~ 1.0+) — CharCount $ratio prop 전달용
   const charRatio = inputText.length / maxInputLength;
-
-  /**
-   * SSE 이벤트 상태에 따라 몽글이 애니메이션 상태를 결정한다.
-   *
-   * 우선순위:
-   * 1. isLoading + status(처리 중 메시지 있음) → thinking (AI가 생각하는 중)
-   * 2. isLoading + 마지막 메시지가 bot 스트리밍 중 → talking (토큰 수신 중)
-   * 3. clarification 표시 중 (로딩 완료 후) → waving (추가 질문하며 손 흔들기)
-   * 4. 마지막 메시지가 movie_cards (추천 완료) → celebrating
-   * 5. messages 길이가 0 (첫 진입) → waving (인사)
-   * 6. 그 외 대기 상태 → idle
-   *
-   * messages/clarification 참조는 useMemo deps에 포함하여 불필요한 재계산을 방지한다.
-   */
-  const monggleAnimation = useMemo(() => {
-    // AI가 처리 중이고 status 메시지가 있으면 → thinking
-    if (isLoading && status) return 'thinking';
-
-    // AI가 처리 중이고 마지막 메시지가 봇(토큰 스트리밍) → talking
-    if (isLoading) {
-      const lastMsg = messages[messages.length - 1];
-      if (lastMsg && lastMsg.role === 'bot') return 'talking';
-      return 'thinking';
-    }
-
-    // 로딩 완료 후 clarification이 표시 중이면 → waving (추가 질문하며 손 흔들기)
-    if (clarification) return 'waving';
-
-    // 대화 결과가 있을 때
-    if (messages.length > 0) {
-      // 가장 마지막 봇 관련 메시지가 movie_cards이면 → celebrating
-      const lastBotMsg = [...messages].reverse().find(
-        (m) => m.role === 'bot' || m.role === 'movie_cards',
-      );
-      if (lastBotMsg?.role === 'movie_cards') return 'celebrating';
-      return 'idle';
-    }
-
-    // 메시지가 없는 초기 상태 → waving (환영 인사)
-    return 'waving';
-  }, [isLoading, status, clarification, messages]);
 
   return (
     <S.ChatWindowWrapper

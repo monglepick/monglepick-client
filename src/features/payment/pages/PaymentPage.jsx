@@ -18,6 +18,8 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+/* 커스텀 모달 훅 — window.confirm 대체 */
+import { useModal } from '../../../shared/components/Modal';
 /* Toss Payments SDK v2 — 결제위젯 초기화용 */
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 /* 인증 Context 훅 — app/providers에서 가져옴 */
@@ -70,6 +72,9 @@ const SUCCESS_URL = `${window.location.origin}/payment/success`;
 const FAIL_URL = `${window.location.origin}/payment/fail`;
 
 export default function PaymentPage() {
+  /* 커스텀 모달 — window.confirm 대체 */
+  const { showConfirm } = useModal();
+
   /* ── 상태 관리 ── */
 
   /* 구독 상품 목록 */
@@ -343,9 +348,13 @@ export default function PaymentPage() {
   const handleCancelSubscription = async () => {
     if (!user?.id || isCancelling) return;
 
-    const confirmed = window.confirm(
-      '정말 구독을 취소하시겠습니까?\n만료일까지는 계속 이용할 수 있습니다.'
-    );
+    const confirmed = await showConfirm({
+      title: '구독 취소',
+      message: '정말 구독을 취소하시겠습니까?\n만료일까지는 계속 이용할 수 있습니다.',
+      type: 'warning',
+      confirmLabel: '취소하기',
+      cancelLabel: '돌아가기',
+    });
     if (!confirmed) return;
 
     setIsCancelling(true);
