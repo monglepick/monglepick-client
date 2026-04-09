@@ -179,6 +179,77 @@ export const Input = styled.input`
 `;
 
 /**
+ * 자동완성 레이어.
+ * 입력창 바로 아래에 떠서 추천 검색어를 빠르게 고를 수 있게 한다.
+ */
+export const AutocompletePanel = styled.div`
+  position: absolute;
+  top: calc(100% + ${({ theme }) => theme.spacing.xs});
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: ${({ theme }) => theme.spacing.xs};
+  background: ${({ theme }) => theme.colors.bgCard};
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: ${({ theme }) => theme.radius.xl};
+  box-shadow: ${({ theme }) => theme.shadows.lg};
+`;
+
+/**
+ * 자동완성 목록.
+ * 검색어 후보를 세로 리스트로 정렬한다.
+ */
+export const AutocompleteList = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+`;
+
+/**
+ * 자동완성 개별 항목.
+ */
+export const AutocompleteItem = styled.li`
+  width: 100%;
+`;
+
+/**
+ * 자동완성 선택 버튼.
+ * 키보드/마우스 선택 상태를 모두 같은 시각 언어로 보여준다.
+ *
+ * @prop {boolean} $active - 현재 강조된 후보 여부
+ */
+export const AutocompleteButton = styled.button`
+  width: 100%;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  border: none;
+  border-radius: ${({ theme }) => theme.radius.lg};
+  background: ${({ $active, theme }) => ($active ? theme.colors.bgTertiary : 'transparent')};
+  color: ${({ theme }) => theme.colors.textPrimary};
+  font-size: ${({ theme }) => theme.typography.textSm};
+  text-align: left;
+  cursor: pointer;
+  transition: background-color ${({ theme }) => theme.transitions.fast},
+              color ${({ theme }) => theme.transitions.fast};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.bgTertiary};
+  }
+`;
+
+/**
+ * 자동완성 안내 문구.
+ * 로딩 중이거나 후보가 없을 때 입력창 아래에 짧게 노출한다.
+ */
+export const AutocompleteMessage = styled.p`
+  margin: 0;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: ${({ theme }) => theme.typography.textSm};
+`;
+
+/**
  * 검색 버튼 — gradient 배경.
  * 640px 이하에서 전체 너비.
  * 비활성(:disabled) 시 opacity 0.6.

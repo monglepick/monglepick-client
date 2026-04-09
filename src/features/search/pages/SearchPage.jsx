@@ -1,4 +1,4 @@
-/**
+/*
  * 검색 페이지 컴포넌트.
  *
  * 영화 검색 기능을 제공한다:
@@ -17,6 +17,7 @@ import { useSearchParams } from 'react-router-dom';
 import {
   deleteAllRecentSearches,
   deleteRecentSearchKeyword,
+  getAutocompleteSuggestions,
   getRecentSearches,
   getSearchGenres,
   logSearchResultClick,
@@ -38,6 +39,8 @@ const RECENT_PREVIEW_SIZE = 5;
 const RECENT_HISTORY_PAGE_SIZE = 30;
 const RECENT_HISTORY_SCROLL_THRESHOLD = 80;
 const SEARCH_CACHE_STORAGE_KEY = 'monglepick_search_page_cache';
+const AUTOCOMPLETE_DEBOUNCE_MS = 300;
+const AUTOCOMPLETE_LIMIT = 8;
 
 /** 장르 필터 옵션 */
 const GENRE_FILTERS = [
@@ -308,11 +311,28 @@ export default function SearchPage() {
   const [deletingRecentKeyword, setDeletingRecentKeyword] = useState('');
   const [isDeletingAllRecent, setIsDeletingAllRecent] = useState(false);
   const [isRecentModalOpen, setIsRecentModalOpen] = useState(false);
+  const [autocompleteSuggestions, setAutocompleteSuggestions] = useState([]);
+  const [isAutocompleteLoading, setIsAutocompleteLoading] = useState(false);
+  const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
+  const [activeAutocompleteIndex, setActiveAutocompleteIndex] = useState(-1);
   const loadMoreRef = useRef(null);
+  const autocompleteRef = useRef(null);
+  const searchInputRef = useRef(null);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
   const { primaryOptions: primarySearchGenreOptions, detailOptions: detailSearchGenreOptions } = (
     splitSearchGenreOptions(searchGenreOptions)
   );
+
+  const isAutocompleteSupportedSearchType = searchType === 'all' || searchType === 'title';
+
+  /**
+   * 자동완성 레이어 상태를 초기화한다.
+   * 검색 제출/검색 타입 전환처럼 추천 목록을 닫아야 할 때 공통으로 사용한다.
+   */
+  const closeAutocomplete = useCallback(() => {
+    setIsAutocompleteOpen(false);
+    setActiveAutocompleteIndex(-1);
+  }, []);
 
   const restoreSearchSnapshot = useCallback((snapshot) => {
     if (!snapshot) return;
@@ -736,14 +756,157 @@ export default function SearchPage() {
   ]);
 
   /**
+   * 입력 중인 제목을 debounce 하여 자동완성 후보를 가져온다.
+   * 현재 자동완성 로직은 제목 기반이므로 title/all 검색 타입에서만 노출한다.
+   */
+  useEffect(() => {
+    const queryText = query.trim();
+
+    if (!queryText || !isAutocompleteSupportedSearchType) {
+      setAutocompleteSuggestions([]);
+      setIsAutocompleteLoading(false);
+      closeAutocomplete();
+      return undefined;
+    }
+
+    let isMounted = true;
+    const timerId = window.setTimeout(async () => {
+      setIsAutocompleteLoading(true);
+      try {
+        const suggestions = await getAutocompleteSuggestions({
+          query: queryText,
+          limit: AUTOCOMPLETE_LIMIT,
+        });
+        if (!isMounted) {
+          return;
+        }
+
+        setAutocompleteSuggestions(suggestions);
+        setActiveAutocompleteIndex(suggestions.length > 0 ? 0 : -1);
+        setIsAutocompleteOpen(
+          suggestions.length > 0 && document.activeElement === searchInputRef.current
+        );
+      } catch {
+        if (!isMounted) {
+          return;
+        }
+
+        setAutocompleteSuggestions([]);
+        setActiveAutocompleteIndex(-1);
+        setIsAutocompleteOpen(false);
+      } finally {
+        if (isMounted) {
+          setIsAutocompleteLoading(false);
+        }
+      }
+    }, AUTOCOMPLETE_DEBOUNCE_MS);
+
+    return () => {
+      isMounted = false;
+      window.clearTimeout(timerId);
+    };
+  }, [closeAutocomplete, isAutocompleteSupportedSearchType, query]);
+
+  /**
+   * 자동완성 레이어 바깥을 클릭하면 추천 목록을 닫는다.
+   * 검색 페이지 다른 조작과 자연스럽게 공존하도록 outside click 패턴을 사용한다.
+   */
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (autocompleteRef.current?.contains(event.target)) {
+        return;
+      }
+
+      closeAutocomplete();
+    };
+
+    window.addEventListener('mousedown', handlePointerDown);
+    return () => {
+      window.removeEventListener('mousedown', handlePointerDown);
+    };
+  }, [closeAutocomplete]);
+
+  /**
+   * 자동완성 후보를 선택한다.
+   * 추천어를 입력창에 반영한 뒤 바로 동일 키워드로 검색 결과를 연다.
+   */
+  const handleSelectAutocomplete = useCallback((suggestion) => {
+    if (!suggestion) {
+      return;
+    }
+
+    setQuery(suggestion);
+    setAutocompleteSuggestions([]);
+    closeAutocomplete();
+    executeSearch(suggestion, searchType, genre, sort, 1, false, selectedSearchGenres);
+  }, [closeAutocomplete, executeSearch, genre, searchType, selectedSearchGenres, sort]);
+
+  /**
    * 검색 폼 제출 핸들러.
    *
    * @param {Event} e - 폼 제출 이벤트
    */
   const handleSearch = (e) => {
     e.preventDefault();
+    closeAutocomplete();
     executeSearch(query, searchType, genre, sort, 1, false, selectedSearchGenres);
   };
+
+  /**
+   * 검색 입력 변경 핸들러.
+   * 입력값을 갱신하면서, 제목 자동완성 가능 상태면 추천 목록을 다시 열 준비를 한다.
+   */
+  const handleQueryChange = useCallback((nextValue) => {
+    setQuery(nextValue);
+    setActiveAutocompleteIndex(-1);
+
+    if (!nextValue.trim()) {
+      setAutocompleteSuggestions([]);
+      closeAutocomplete();
+    }
+  }, [closeAutocomplete]);
+
+  /**
+   * 검색 입력 키보드 조작을 처리한다.
+   * 위/아래 화살표로 추천어 이동, Enter로 선택, Escape로 닫기를 지원한다.
+   */
+  const handleQueryKeyDown = useCallback((event) => {
+    if (!isAutocompleteOpen || autocompleteSuggestions.length === 0) {
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setActiveAutocompleteIndex((prev) => (
+        prev < autocompleteSuggestions.length - 1 ? prev + 1 : 0
+      ));
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setActiveAutocompleteIndex((prev) => (
+        prev > 0 ? prev - 1 : autocompleteSuggestions.length - 1
+      ));
+      return;
+    }
+
+    if (event.key === 'Enter' && activeAutocompleteIndex >= 0) {
+      event.preventDefault();
+      handleSelectAutocomplete(autocompleteSuggestions[activeAutocompleteIndex]);
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      closeAutocomplete();
+    }
+  }, [
+    activeAutocompleteIndex,
+    autocompleteSuggestions,
+    closeAutocomplete,
+    handleSelectAutocomplete,
+    isAutocompleteOpen,
+  ]);
 
   /**
    * 텍스트 검색이 없을 때 사용하는 장르 발견형 토글을 켜고 끈다.
@@ -906,6 +1069,7 @@ export default function SearchPage() {
    */
   const handleSearchTypeChange = (selectedType) => {
     setSearchType(selectedType);
+    closeAutocomplete();
     if (query.trim()) {
       executeSearch(query, selectedType, genre, sort);
     }
@@ -1065,15 +1229,48 @@ export default function SearchPage() {
             </S.SearchTypeWrap>
 
             {/* 검색 입력 필드 */}
-            <S.InputField>
+            <S.InputField ref={autocompleteRef}>
               <S.InputIcon aria-hidden="true">🔍</S.InputIcon>
               <S.Input
+                ref={searchInputRef}
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => handleQueryChange(e.target.value)}
+                onKeyDown={handleQueryKeyDown}
+                onFocus={() => {
+                  if (autocompleteSuggestions.length > 0) {
+                    setIsAutocompleteOpen(true);
+                  }
+                }}
                 placeholder="영화 제목, 배우, 감독을 검색하세요..."
+                aria-autocomplete="list"
+                aria-expanded={isAutocompleteOpen}
                 autoFocus
               />
+
+              {(isAutocompleteLoading || isAutocompleteOpen) && (
+                <S.AutocompletePanel>
+                  {isAutocompleteLoading && (
+                    <S.AutocompleteMessage>자동완성 후보를 불러오는 중입니다.</S.AutocompleteMessage>
+                  )}
+
+                  {!isAutocompleteLoading && autocompleteSuggestions.length > 0 && (
+                    <S.AutocompleteList>
+                      {autocompleteSuggestions.map((suggestion, index) => (
+                        <S.AutocompleteItem key={`${suggestion}-${index}`}>
+                          <S.AutocompleteButton
+                            type="button"
+                            $active={index === activeAutocompleteIndex}
+                            onClick={() => handleSelectAutocomplete(suggestion)}
+                          >
+                            {suggestion}
+                          </S.AutocompleteButton>
+                        </S.AutocompleteItem>
+                      ))}
+                    </S.AutocompleteList>
+                  )}
+                </S.AutocompletePanel>
+              )}
             </S.InputField>
             <S.SearchButton type="submit" disabled={isLoading}>
               검색
