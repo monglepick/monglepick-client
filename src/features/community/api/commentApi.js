@@ -27,8 +27,25 @@ const commentsBase = (postId) => `/api/v1/posts/${postId}/comments`;
  * @param {number} [params.size=20] - 페이지 크기
  * @returns {Promise<Object>} Spring Page 응답
  */
+function normalizeComment(c) {
+  if (!c) return c;
+  return {
+    ...c,
+    nickname:
+      c.nickname ||
+      c.authorNickname ||
+      c.userNickname ||
+      c.author?.nickname ||
+      null,
+  };
+}
+
 export async function getComments(postId, { page = 0, size = 20 } = {}) {
-  return api.get(commentsBase(postId), { params: { page, size } });
+  const data = await api.get(commentsBase(postId), { params: { page, size } });
+  return {
+    ...data,
+    content: (data?.content ?? []).map(normalizeComment),
+  };
 }
 
 /**
@@ -42,7 +59,8 @@ export async function getComments(postId, { page = 0, size = 20 } = {}) {
  */
 export async function createComment(postId, { content, parentCommentId = null }) {
   requireAuth();
-  return api.post(commentsBase(postId), { content, parentCommentId });
+  const data = await api.post(commentsBase(postId), { content, parentCommentId });
+  return normalizeComment(data);
 }
 
 /**
