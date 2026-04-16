@@ -31,9 +31,8 @@ const AGENT_DEEP_CARDS = [
   { id: 'chatAgent',  icon: '💬', title: 'Chat Agent',         sub: 'LangGraph 16노드 · 4분기 흐름 · SSE 8 이벤트',          color: '#ef476f' },
   { id: 'ragPipeline', icon: '🔎', title: 'RAG Pipeline',      sub: 'Qdrant+ES+Neo4j 병렬 · RRF k=60 · 4단계 완화 · MMR λ=0.7', color: '#f97316' },
   { id: 'matchAgent', icon: '🎬', title: 'Movie Match v3',     sub: '7노드 · LLM 리랭커 + Centroid + Co-watched CF',          color: '#a78bfa' },
-  { id: 'contentAgent', icon: '🖼️', title: 'Content Analysis', sub: '포스터 분석 · 비속어 검출 · 패턴 분석',                  color: '#f97316' },
-  { id: 'roadmapAgent', icon: '🗺️', title: 'Roadmap Agent',    sub: '15편 큐레이션 + 퀴즈 자동 생성',                          color: '#ffd166' },
-  { id: 'llmStack',   icon: '🧠', title: 'Hybrid LLM Stack',   sub: 'EXAONE 32B · Qwen 35B · EXAONE 1.2B vLLM · Solar',       color: '#7c6cf0' },
+  { id: 'roadmapAgent', icon: '🗺️', title: 'Roadmap Agent',    sub: '15편 테마별 큐레이션 · 단계별 진행 · 완주 뱃지',          color: '#ffd166' },
+  { id: 'llmStack',   icon: '🧠', title: 'Hybrid LLM Stack',   sub: 'Solar API(분류·추출·설명) + EXAONE 1.2B vLLM(최종 응답)', color: '#7c6cf0' },
   { id: 'sseEvents',  icon: '📡', title: 'SSE Streaming',      sub: '8개 이벤트 · point_update v3.4 · clarification 카드',     color: '#118ab2' },
   { id: 'memoryArch', icon: '🧊', title: 'Memory Architecture', sub: 'Redis 핫 캐시 + MySQL 아카이브 (write-behind)',         color: '#06d6a0' },
   { id: 'recoScoring', icon: '⚖️', title: 'Reco Scoring',       sub: 'CF+CBF 동적 가중치 + MMR λ=0.7 + RRF k=60',              color: '#ef476f' },
@@ -67,14 +66,73 @@ const FEATURES = [
   { icon: '🎬', title: 'AI 퀴즈 & 씬 맞추기', desc: '매일 새로운 영화 퀴즈와 스틸컷 맞추기 게임으로 커뮤니티가 살아있어요.', tag: '커뮤니티', color: '#f97316' },
 ];
 
+/**
+ * Neo4j Browser "빠른 쿼리 프리필" URL 빌더.
+ *
+ * Neo4j Browser 는 보안상 URL 파라미터로부터 Cypher 자동 실행을 지원하지 않는다.
+ * 대신 `?cmd=edit&arg=<cypher>` 로 에디터에 쿼리를 프리필해 "열자마자 여러 쿼리가
+ * 눈에 보이는 상태" 를 만들 수 있다. 아래 multi-statement 스크립트를 통째로
+ * 붙여넣어 줌으로써 사용자는 원하는 블록을 선택 후 Ctrl+Enter 로 실행한다.
+ *
+ * 노드 라벨: Movie/Person/Genre/MoodTag — 관계: DIRECTED/ACTED_IN/HAS_GENRE/HAS_MOOD
+ */
+const NEO4J_PRELOAD_CYPHER = [
+  '// 몽글픽 Neo4j 빠른 쿼리 샘플 — 원하는 블록 선택 후 Ctrl+Enter 로 실행하세요',
+  '',
+  '// 1) 전체 노드 수 (라벨별)',
+  'MATCH (n) RETURN labels(n) AS label, count(*) AS cnt ORDER BY cnt DESC;',
+  '',
+  '// 2) 장르별 영화 TOP 20',
+  'MATCH (m:Movie)-[:HAS_GENRE]->(g:Genre) RETURN g.name AS genre, count(m) AS movies ORDER BY movies DESC LIMIT 20;',
+  '',
+  '// 3) 봉준호 감독 영화 네트워크',
+  "MATCH (d:Person {name:'봉준호'})-[:DIRECTED]->(m:Movie)<-[:ACTED_IN]-(a:Person) RETURN d, m, a LIMIT 100;",
+  '',
+  '// 4) 최민식 ∩ 송강호 함께 출연한 영화',
+  "MATCH (a:Person {name:'최민식'})-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(b:Person {name:'송강호'}) RETURN a, m, b;",
+  '',
+  "// 5) 무드태그 '따뜻한' 영화 샘플",
+  "MATCH (m:Movie)-[:HAS_MOOD]->(t:MoodTag {name:'따뜻한'}) RETURN m.title, m.vote_average ORDER BY m.vote_average DESC LIMIT 30;",
+].join('\n');
+
+/**
+ * Neo4j Browser iframe/링크 URL.
+ *
+ * Nginx 에서 X-Frame-Options: DENY + CSP frame-ancestors:none 을 strip 했으므로
+ * iframe 임베딩이 가능하다. `?cmd=edit&arg=<cypher>` 로 쿼리를 에디터에 프리필.
+ * (Neo4j Browser 는 보안상 URL 기반 자동 실행은 지원하지 않으며 Ctrl+Enter 필요)
+ */
+const NEO4J_BROWSER_URL =
+  `http://210.109.15.187/browser/?connectURL=neo4j://210.109.15.187:7687&preselectAuthMethod=NO_AUTH&cmd=edit&arg=${encodeURIComponent(NEO4J_PRELOAD_CYPHER)}`;
+
+/**
+ * TensorFlow Projector URL — 실제 몽글픽 벡터 데이터(3000편 × 200D) 로드.
+ *
+ * projector.tensorflow.org 는 HTTPS 전용이라 HTTP 벡터 파일 fetch 시 mixed content 차단.
+ * → 해결: projector HTML 을 VM1 에 self-host 해 same-origin HTTP 로 제공.
+ */
+/** config 경로가 HTML 에 직접 하드코딩되어 있으므로 URL 파라미터 불필요 */
+const TF_PROJECTOR_URL = 'http://210.109.15.187/static/projector/index.html';
+
 /* ── 관리/모니터링/참고 링크 데이터 ── */
 const QUICK_LINKS = {
-  /* 서비스 관리 — VM1 Nginx 리버스 프록시 경유 URL (VM3는 Private IP) */
+  /**
+   * 서비스 관리 — VM1 Nginx 리버스 프록시 경유 URL (VM3/VM4는 Private IP).
+   *
+   * 2026-04-16 개편:
+   *  - Prometheus 카드 제거 (사용자 요청, Grafana 로 충분히 소화됨)
+   *  - Neo4j Browser 카드 추가 (클릭 시 빠른 쿼리 5종이 에디터에 프리필된 상태로 열림 —
+   *    Neo4j Browser 는 보안상 쿼리 자동 실행을 지원하지 않으므로 사용자 Ctrl+Enter 필요)
+   *  - Swagger/OpenAPI 카드 3종 추가 (Backend / Agent / Recommend)
+   */
   services: [
-    { icon: '🛠️', label: '관리자 페이지', url: 'http://210.109.15.187/admin/', desc: 'Admin 대시보드 · 운영 도구' },
+    { icon: '🛠️', label: '관리자 페이지',   url: 'http://210.109.15.187/admin/',              desc: 'Admin 대시보드 · 운영 도구' },
     { icon: '📊', label: 'Grafana 대시보드', url: 'http://210.109.15.187/monitoring/grafana/', desc: 'Prometheus 메트릭 모니터링' },
-    { icon: '📋', label: 'Kibana (ELK)', url: 'http://210.109.15.187/monitoring/kibana/', desc: '로그 검색 · 시각화' },
-    { icon: '🔍', label: 'Prometheus', url: 'http://210.109.15.187/monitoring/prometheus/', desc: '메트릭 쿼리 · 알림 규칙' },
+    { icon: '📋', label: 'Kibana (ELK)',     url: 'http://210.109.15.187/monitoring/kibana/',  desc: '로그 검색 · 시각화' },
+    /* Swagger/OpenAPI — 3개 서비스 API 명세 */
+    { icon: '📘', label: 'Backend Swagger',   url: 'http://210.109.15.187/swagger-ui/index.html', desc: 'Spring Boot · springdoc OpenAPI' },
+    { icon: '📗', label: 'Agent Swagger',     url: 'http://210.109.15.187/agent/docs',            desc: 'FastAPI · AI Agent :8000' },
+    { icon: '📙', label: 'Recommend Swagger', url: 'http://210.109.15.187/recommend/docs',        desc: 'FastAPI · Recommend :8001' },
   ],
   /* 팀원별 GitHub & 참고 링크 */
   members: [
@@ -169,6 +227,26 @@ export default function LandingPage() {
   const [openAgentInfo, setOpenAgentInfo] = useState(null);
   const particlesRef = useRef(null);
   const featureTimerRef = useRef(null);
+  /* 벡터 임베딩 iframe — 스크롤 진입 시에만 로드 (메모리 크래시 방지) */
+  const [projectorVisible, setProjectorVisible] = useState(false);
+  const projectorRef = useRef(null);
+
+  /* 첫 접속 시 반드시 맨 상단으로 — iframe 로드가 스크롤을 끌어가는 것 방지 */
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  /* 벡터 임베딩 iframe — 뷰포트 진입 시에만 src 설정 (WebGL 메모리 크래시 방지) */
+  useEffect(() => {
+    const el = projectorRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setProjectorVisible(true); observer.disconnect(); } },
+      { rootMargin: '300px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   /* 스크롤 시 네비게이션 배경 변경 */
   useEffect(() => {
@@ -417,41 +495,6 @@ export default function LandingPage() {
               </S.ChatWindow>
             </S.Reveal>
           </S.ChatDemoLayout>
-        </S.Container>
-      </S.ChatDemo>
-
-      {/* ── AI Agent 심층 소개 ──
-          ChatDemo 가 "맛보기" 라면 이 섹션은 "엔진룸 투어".
-          8개 카드 클릭 시 AgentInfoModal(텍스트 중심 심층 모달) 오픈 */}
-      <S.ChatDemo id="lp-agent" style={{ paddingTop: 60, paddingBottom: 60 }}>
-        <S.Container>
-          <S.Reveal className="lp-reveal" style={{ textAlign: 'center', marginBottom: 36 }}>
-            <S.SectionLabel>AI Agent · Deep Dive</S.SectionLabel>
-            <S.SectionTitle>
-              "오늘 우울해" 한 마디가<br />
-              <S.GradientText>추천 5편</S.GradientText>이 되기까지
-            </S.SectionTitle>
-            <S.SectionSubtitle style={{ margin: '12px auto 0' }}>
-              LangGraph 16노드, 4갈래 분기, RAG 하이브리드 검색, 4종 LLM 협업, SSE 8 이벤트 —
-              몽글픽 에이전트의 실제 동작을 카드별로 풀어드려요. 클릭하면 더 깊이 들어갑니다.
-            </S.SectionSubtitle>
-          </S.Reveal>
-
-          <S.Reveal className="lp-reveal" $delay="0.1s">
-            <S.DiagramCardGrid>
-              {AGENT_DEEP_CARDS.map((c) => (
-                <S.DiagramCard
-                  key={c.id}
-                  $color={c.color}
-                  onClick={() => setOpenAgentInfo(c.id)}
-                >
-                  <S.DiagramCardIcon $color={c.color}>{c.icon}</S.DiagramCardIcon>
-                  <S.DiagramCardTitle>{c.title}</S.DiagramCardTitle>
-                  <S.DiagramCardSub>{c.sub}</S.DiagramCardSub>
-                </S.DiagramCard>
-              ))}
-            </S.DiagramCardGrid>
-          </S.Reveal>
         </S.Container>
       </S.ChatDemo>
 
@@ -732,6 +775,82 @@ export default function LandingPage() {
         </S.Container>
       </S.Data>
 
+      {/* ── Neo4j 그래프 시각화 (정적 JSON 덤프 + vis-network) ──
+          Neo4j HTTP API 로 봉준호 네트워크 / 영화-장르 / 영화-무드태그 쿼리를 실행해
+          126노드·176엣지를 graph_dump.json 으로 추출. vis-network 로 인터랙티브 렌더.
+          Bolt 포트 불필요, 로딩 즉시 그래프 표시.
+          ────────────────────────────────────────────────────────────── */}
+      <S.EmbeddingSection>
+        <S.Container>
+          <S.Reveal className="lp-reveal">
+            <S.SectionLabel>Graph Database</S.SectionLabel>
+            <S.SectionTitle>Neo4j 그래프 시각화</S.SectionTitle>
+            <S.SectionSubtitle style={{ margin: '0 auto' }}>
+              봉준호 감독 네트워크를 중심으로 영화-배우-장르-무드 관계 그래프를 탐색합니다
+            </S.SectionSubtitle>
+          </S.Reveal>
+          <S.Reveal className="lp-reveal" $delay="0.15s">
+            <S.EmbeddingIframeWrap>
+              <iframe
+                src="http://210.109.15.187/static/vectors/graph.html"
+                title="몽글픽 Neo4j 그래프 시각화 — 봉준호 감독 네트워크"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allow="fullscreen"
+                loading="lazy"
+              />
+            </S.EmbeddingIframeWrap>
+            <S.EmbeddingNote>
+              상단 버튼으로 <b>봉준호 네트워크</b> / <b>영화-장르</b> / <b>영화-무드태그</b> / <b>전체</b> 전환.
+              노드 클릭 시 좌측 하단에 상세 정보 표시. 드래그로 이동, 스크롤로 줌.
+              <br />
+              Neo4j 5 Community &middot; 노드 126개 &middot; 엣지 176개 &middot;
+              vis-network 렌더링
+            </S.EmbeddingNote>
+          </S.Reveal>
+        </S.Container>
+      </S.EmbeddingSection>
+
+      {/* ── 벡터 임베딩 시각화 (TF Projector — 새 탭 링크) ──
+          WebGL iframe 은 메모리 과다로 페이지 크래시 유발 → 프리뷰 카드 + 새 탭 링크로 전환.
+          ────────────────────────────────────────────────────────────── */}
+      <S.EmbeddingSection>
+        <S.Container>
+          <S.Reveal className="lp-reveal">
+            <S.SectionLabel>Vector Space</S.SectionLabel>
+            <S.SectionTitle>벡터 임베딩 시각화</S.SectionTitle>
+            <S.SectionSubtitle style={{ margin: '0 auto' }}>
+              Upstage Solar 4096차원 벡터를 3D 공간에 투영해 영화 간 의미적 거리를 직관적으로 탐색합니다
+            </S.SectionSubtitle>
+          </S.Reveal>
+          <S.Reveal className="lp-reveal" $delay="0.15s">
+            <S.EmbeddingIframeWrap ref={projectorRef}>
+              {projectorVisible ? (
+                <iframe
+                  src={TF_PROJECTOR_URL}
+                  title="몽글픽 영화 임베딩 시각화 — TensorFlow Projector (1,000편 × 200D)"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allow="fullscreen"
+                  loading="lazy"
+                />
+              ) : (
+                <S.ProjectorPlaceholder>
+                  <S.ProjectorIcon>🔮</S.ProjectorIcon>
+                  <div>스크롤하면 벡터 시각화가 로드됩니다...</div>
+                </S.ProjectorPlaceholder>
+              )}
+            </S.EmbeddingIframeWrap>
+            <S.EmbeddingNote>
+              TensorFlow Embedding Projector — 1,000편 영화 벡터 (Solar 4096D → 200D).
+              PCA / t-SNE / UMAP 3D 시각화. 점 클릭으로 유사 영화 탐색.
+            </S.EmbeddingNote>
+          </S.Reveal>
+        </S.Container>
+      </S.EmbeddingSection>
+
       {/* ── 진행 현황 ── */}
       <S.Timeline id="lp-progress">
         <S.Container>
@@ -873,6 +992,33 @@ export default function LandingPage() {
                 ))}
               </S.DiagramCardGrid>
             </S.DiagramSection>
+          </S.Reveal>
+
+          {/* ── AI Agent Deep Dive (Architecture & Diagrams 바로 아래 배치) ── */}
+          <S.Reveal className="lp-reveal" style={{ textAlign: 'center', marginTop: 60, marginBottom: 36 }}>
+            <S.SectionLabel>AI Agent · Deep Dive</S.SectionLabel>
+            <S.SectionTitle>
+              "오늘 우울해" 한 마디가<br />
+              <S.GradientText>추천 5편</S.GradientText>이 되기까지
+            </S.SectionTitle>
+            <S.SectionSubtitle style={{ margin: '12px auto 0' }}>
+              몽글픽 에이전트가 어떻게 동작하는지 카드별로 풀어드려요. 클릭하면 더 깊이 들어갑니다.
+            </S.SectionSubtitle>
+          </S.Reveal>
+          <S.Reveal className="lp-reveal" $delay="0.1s">
+            <S.DiagramCardGrid>
+              {AGENT_DEEP_CARDS.map((c) => (
+                <S.DiagramCard
+                  key={c.id}
+                  $color={c.color}
+                  onClick={() => setOpenAgentInfo(c.id)}
+                >
+                  <S.DiagramCardIcon $color={c.color}>{c.icon}</S.DiagramCardIcon>
+                  <S.DiagramCardTitle>{c.title}</S.DiagramCardTitle>
+                  <S.DiagramCardSub>{c.sub}</S.DiagramCardSub>
+                </S.DiagramCard>
+              ))}
+            </S.DiagramCardGrid>
           </S.Reveal>
 
           {/* ── 팀원 GitHub ── */}
