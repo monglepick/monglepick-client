@@ -58,7 +58,7 @@ export const MOVIE_ENDPOINTS = {
   /** 영화 목록 조회 - GET */
   LIST: `${API_VERSION}/movies`,
   /** 영화 상세 조회 - GET (id 파라미터 필요) */
-  DETAIL: (id) => `${API_VERSION}/movies/${id}`,
+  DETAIL: (id) => `${API_VERSION}/search/movies/${id}`,
   /** 영화 검색 - GET (query 파라미터 필요) */
   SEARCH: `${API_VERSION}/search/movies`,
   /** 인기 영화 목록 - GET */
@@ -119,6 +119,10 @@ export const RECOMMEND_USER_ENDPOINTS = {
   WISHLIST: `${API_V2_VERSION}/users/me/wishlist`,
   /** 내 리뷰 목록 조회 - GET */
   MY_REVIEWS: `${API_V2_VERSION}/users/me/reviews`,
+  /** 내 최애 영화 목록 조회/저장 - GET, PUT */
+  FAVORITE_MOVIES: `${API_V2_VERSION}/users/me/favorite-movies`,
+  /** 내 최애 영화 순서 저장 - PUT */
+  FAVORITE_MOVIE_ORDER: `${API_V2_VERSION}/users/me/favorite-movies/order`,
   /** 특정 영화 위시리스트 상태 조회 - GET */
   WISHLIST_STATUS: (movieId) => `${API_V2_VERSION}/users/me/wishlist/${movieId}`,
   /** 위시리스트 추가 - POST / 삭제 - DELETE */
