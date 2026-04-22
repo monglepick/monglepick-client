@@ -84,6 +84,8 @@ export default function RoadmapPage() {
   /* ── 상세 상태 ── */
   const [detail, setDetail] = useState(null);
   const [completedMovieIds, setCompletedMovieIds] = useState(new Set());
+  /** 반려된 영화 맵: movieId(string) → rejectionReason(string) */
+  const [rejectedMovieMap, setRejectedMovieMap] = useState({});
   const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
 
@@ -116,8 +118,15 @@ export default function RoadmapPage() {
       const data = await getCourseDetail(courseId);
       setDetail(data);
       /* 완료된 영화 ID 세트 생성 — 백엔드 completedMovieIds 배열 (문자열 ID) */
-      const completed = new Set(data.completedMovieIds || []);
+      const completed = new Set((data.completedMovieIds || []).map(String));
       setCompletedMovieIds(completed);
+      /* 반려된 영화: { movieId → rejectionReason } 맵 생성 */
+      const rejectedMap = {};
+      (data.rejectedMovies || []).forEach((item) => {
+        const id = String(item.movieId ?? item.id ?? '');
+        if (id) rejectedMap[id] = item.rejectionReason ?? item.reason ?? '';
+      });
+      setRejectedMovieMap(rejectedMap);
     } catch {
       showAlert({ title: '오류', message: '코스를 불러올 수 없습니다.', type: 'error' });
       /* 진입 경로에 따라 목록으로 복귀 (stamp 모드면 /stamp, 아니면 /roadmap) */
@@ -156,15 +165,24 @@ export default function RoadmapPage() {
   };
 
   /**
-   * 체크박스 클릭.
-   * - 미완료 → 리뷰 작성 페이지로 이동
-   * - 이미 완료 → 아무 동작 없음 (완료 취소는 지원하지 않음)
+   * 인증 버튼 클릭.
+   * - 미완료      → 리뷰 작성 페이지로 이동
+   * - 완료        → 작성한 리뷰 조회 페이지로 이동 (읽기 전용)
+   * - 반려(rejected) → 반려 사유 + 재인증 폼 페이지로 이동
    */
-  const handleCheckboxClick = (movieId, movieTitle) => {
-    if (!detail || completedMovieIds.has(movieId)) return;
+  const handleCheckboxClick = (movieId, movieTitle, isCompleted, isRejected, rejectionReason) => {
+    if (!detail) return;
     navigate(
       buildPath(ROUTES.STAMP_REVIEW, { courseId: detail.id, movieId }),
-      { state: { movieTitle, courseTitle: detail.title } },
+      {
+        state: {
+          movieTitle,
+          courseTitle: detail.title,
+          readOnly: isCompleted && !isRejected,
+          resubmit: isRejected,
+          rejectionReason: rejectionReason || '',
+        },
+      },
     );
   };
 
@@ -211,7 +229,22 @@ export default function RoadmapPage() {
                 {movies.map((movie, idx) => {
                   const mid = movie.movieId || movie.id;
                   const poster = movie.posterPath ? `${TMDB_IMG}${movie.posterPath}` : null;
-                  const isCompleted = completedMovieIds.has(mid);
+                  const isCompleted = completedMovieIds.has(String(mid));
+                  const rejectionReason = rejectedMovieMap[String(mid)];
+                  const isRejected = !!rejectionReason;
+
+                  const btnLabel = isCompleted
+                    ? '✓ 인증완료'
+                    : isRejected
+                    ? '✗ 반려됨'
+                    : '시청 인증';
+                  const btnTitle = isCompleted
+                    ? '내 리뷰 보기'
+                    : isRejected
+                    ? '반려 사유 확인 및 재인증'
+                    : !detail.started
+                    ? '코스를 먼저 시작해 주세요'
+                    : '시청 인증하기';
 
                   return (
                     <S.MovieItem key={mid || idx}>
@@ -229,11 +262,12 @@ export default function RoadmapPage() {
                       </S.MovieInfo>
                       <S.VerifyBtn
                         $done={isCompleted}
-                        onClick={() => !isCompleted && detail.started && handleCheckboxClick(mid, movie.title)}
-                        disabled={isCompleted || !detail.started}
-                        title={isCompleted ? '시청 인증 완료' : !detail.started ? '코스를 먼저 시작해 주세요' : '시청 인증하기'}
+                        $rejected={isRejected}
+                        onClick={() => detail.started && handleCheckboxClick(mid, movie.title, isCompleted, isRejected, rejectionReason)}
+                        disabled={!detail.started}
+                        title={btnTitle}
                       >
-                        {isCompleted ? '✓ 인증완료' : '시청 인증'}
+                        {btnLabel}
                       </S.VerifyBtn>
                     </S.MovieItem>
                   );

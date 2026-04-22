@@ -58,7 +58,7 @@ export const MOVIE_ENDPOINTS = {
   /** 영화 목록 조회 - GET */
   LIST: `${API_VERSION}/movies`,
   /** 영화 상세 조회 - GET (id 파라미터 필요) */
-  DETAIL: (id) => `${API_VERSION}/search/movies/${id}`,
+  DETAIL: (id) => `${API_VERSION}/movies/${id}`,
   /** 영화 검색 - GET (query 파라미터 필요) */
   SEARCH: `${API_VERSION}/search/movies`,
   /** 인기 영화 목록 - GET */
@@ -87,6 +87,8 @@ export const MOVIE_ENDPOINTS = {
  * recommend(FastAPI)의 Redis 하이브리드 캐시 구현을 직접 호출한다.
  */
 export const RECOMMEND_MOVIE_ENDPOINTS = {
+  /** 영화 상세 조회 - GET (공개) */
+  DETAIL: (id) => `${API_V2_VERSION}/search/movies/${id}`,
   /** 영화 좋아요 토글 - POST (id 파라미터 필요, JWT 필요) */
   LIKE: (id) => `${API_V2_VERSION}/movies/${id}/like`,
   /** 내 영화 좋아요 상태 조회 - GET (id 파라미터 필요, JWT 필요) */
@@ -154,6 +156,11 @@ export const COMMUNITY_ENDPOINTS = {
    * 응답: { liked: boolean, likeCount: number }
    */
   COMMENT_LIKE: (postId, commentId) => `${API_VERSION}/posts/${postId}/comments/${commentId}/like`,
+  /**
+   * 게시글 신고 - POST (postId 파라미터 필요, JWT 필요)
+   * 바디: { reason, detail? }
+   */
+  POST_REPORT: (postId) => `${API_VERSION}/posts/${postId}/report`,
   /** 플레이리스트 공유 피드 - GET (PLAYLIST_SHARE 카테고리만, 비로그인 허용) */
   SHARED_PLAYLISTS: `${API_VERSION}/posts/shared-playlists`,
   /**
@@ -202,6 +209,8 @@ export const MYPAGE_ENDPOINTS = {
    * Backend: /api/v1/users/me/watch-history (UserController)
    */
   WATCH_HISTORY_ME: `${API_VERSION}/users/me/watch-history`,
+  /** 내가 쓴 게시글 목록 - GET */
+  MY_POSTS: `${API_VERSION}/users/me/posts`,
 };
 
 /**
@@ -446,6 +455,25 @@ export const WORLDCUP_ENDPOINTS = {
 };
 
 /**
+ * Recommend 온보딩 월드컵 엔드포인트.
+ * recommend(FastAPI) 런타임 월드컵 플로우를 처리한다.
+ */
+export const RECOMMEND_WORLDCUP_ENDPOINTS = {
+  /** 커스텀 빌더 장르 목록 - GET */
+  GENRES: `${API_VERSION}/onboarding/worldcup/genres`,
+  /** 카테고리 목록 - GET */
+  CATEGORIES: `${API_VERSION}/onboarding/worldcup/categories`,
+  /** 시작 가능 라운드 계산 - POST */
+  OPTIONS: `${API_VERSION}/onboarding/worldcup/options`,
+  /** 대진표 시작 - POST */
+  START: `${API_VERSION}/onboarding/worldcup/start`,
+  /** 라운드 결과 제출 - POST */
+  SUBMIT: `${API_VERSION}/onboarding/worldcup`,
+  /** 완료 결과 조회 - GET */
+  RESULT: `${API_VERSION}/onboarding/worldcup/result`,
+};
+
+/**
  * 로드맵(Roadmap) 관련 엔드포인트.
  * 영화 학습 코스/로드맵을 처리한다.
  */
@@ -460,6 +488,8 @@ export const ROADMAP_ENDPOINTS = {
   START_COURSE: (id) => `${API_VERSION}/roadmap/courses/${id}/start`,
   /** 영화 시청 완료 마킹 - POST (path: courseId, movieId) */
   COMPLETE_MOVIE: (courseId, movieId) => `${API_VERSION}/roadmap/courses/${courseId}/movies/${movieId}/complete`,
+  /** 영화 리뷰 조회 - GET (path: courseId, movieId) */
+  MOVIE_REVIEW: (courseId, movieId) => `${API_VERSION}/roadmap/courses/${courseId}/movies/${movieId}/review`,
 };
 
 /**

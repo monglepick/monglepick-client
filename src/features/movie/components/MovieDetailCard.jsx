@@ -50,6 +50,37 @@ export default function MovieDetailCard({
   // 영화 데이터가 없으면 렌더링하지 않음
   if (!movie) return null;
 
+  const resolveImageUrl = (pathOrUrl) => {
+    if (!pathOrUrl || typeof pathOrUrl !== 'string') return null;
+    if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
+      return pathOrUrl;
+    }
+    if (pathOrUrl.startsWith('/')) {
+      return `https://image.tmdb.org/t/p/w500${pathOrUrl}`;
+    }
+    return null;
+  };
+
+  const parseGenres = (genres) => {
+    if (Array.isArray(genres)) return genres;
+    if (typeof genres !== 'string') return [];
+
+    try {
+      const parsed = JSON.parse(genres);
+      if (Array.isArray(parsed)) {
+        return parsed.map((genre) => String(genre).trim()).filter(Boolean);
+      }
+    } catch {
+      // JSON 문자열이 아니면 콤마 구분 문자열로 처리
+    }
+
+    return genres.split(',').map((genre) => genre.trim()).filter(Boolean);
+  };
+
+  const posterSrc = resolveImageUrl(
+    movie.posterUrl || movie.poster_url || movie.poster_path
+  );
+
   /**
    * 줄거리 펼치기/접기 토글.
    */
@@ -97,12 +128,12 @@ export default function MovieDetailCard({
       <S.Top>
         {/* 포스터 */}
         <S.Poster>
-          {movie.poster_path || movie.posterUrl ? (
+          {posterSrc ? (
             <>
               {/* 포스터 로딩 전 Skeleton */}
               {!posterLoaded && <S.PosterSkeleton />}
               <S.PosterImg
-                src={movie.poster_path || movie.posterUrl}
+                src={posterSrc}
                 alt={`${movie.title} 포스터`}
                 /* $isLoading=true 이면 투명+절대 위치로 Skeleton 뒤에 숨김 */
                 $isLoading={!posterLoaded}
@@ -156,17 +187,20 @@ export default function MovieDetailCard({
           </S.Meta>
 
           {/* 장르 태그 */}
-          {movie.genres && movie.genres.length > 0 && (
-            <S.Genres>
-              {movie.genres.map((genre) => (
-                <S.GenreTag
-                  key={typeof genre === 'string' ? genre : (genre.name || genre.id)}
-                >
-                  {typeof genre === 'string' ? genre : genre.name}
-                </S.GenreTag>
-              ))}
-            </S.Genres>
-          )}
+          {(() => {
+            const genresArray = parseGenres(movie.genres);
+            return genresArray.length > 0 ? (
+              <S.Genres>
+                {genresArray.map((genre) => (
+                  <S.GenreTag
+                    key={typeof genre === 'string' ? genre : (genre.name || genre.id)}
+                  >
+                    {typeof genre === 'string' ? genre : genre.name}
+                  </S.GenreTag>
+                ))}
+              </S.Genres>
+            ) : null;
+          })()}
 
           {/* 감독 */}
           {movie.director && (
