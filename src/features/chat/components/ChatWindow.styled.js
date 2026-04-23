@@ -76,7 +76,12 @@ const dotBounce = keyframes`
 export const ChatWindowWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  /*
+   * 2026-04-23 PR-2: ChatWindow 가 MainLayout(variant="compact") 아래로 편입되면서
+   * 기존 height: 100vh 는 슬림 헤더(64px) 만큼 오버플로우를 유발한다.
+   * theme.layout.headerHeight 를 빼 뷰포트에 정확히 맞도록 조정.
+   */
+  height: calc(100vh - ${({ theme }) => theme.layout.headerHeight});
   width: 100%;
   background-color: ${({ theme }) => theme.colors.bgMain};
   color: ${({ theme }) => theme.colors.textPrimary};

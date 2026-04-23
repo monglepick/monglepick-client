@@ -70,13 +70,24 @@ export default function SupportChatbotWidget() {
   /* 세션 ID (서버가 최초 호출 시 발급) */
   const [sessionId, setSessionId] = useState(null);
 
-  /* 스크롤 앵커 */
+  /* 스크롤 앵커 + 메시지 컨테이너 ref */
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
 
-  /* 자동 스크롤 — 메시지 추가/로딩 변화 시 하단으로 이동 */
+  /**
+   * 자동 스크롤 — 메시지 추가/로딩 변화 시 챗봇 *내부* 메시지 컨테이너만 하단으로 이동.
+   *
+   * QA #169 (2026-04-23): 기존 `scrollIntoView()` 는 요소가 화면에 보이도록 *모든* 상위
+   * 스크롤 컨테이너를 조정해 페이지 전체가 챗봇 위치까지 튀는 현상이 있었다. 챗봇 패널은
+   * fixed 위치라 화면 스크롤 없이도 항상 보이므로, 내부 컨테이너의 `scrollTop` 만
+   * 직접 조정해 페이지 스크롤을 유발하지 않도록 전환한다.
+   */
   useEffect(() => {
     if (!isOpen) return;
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   }, [messages, isLoading, isOpen]);
 
   /* 경로 이동 시 패널 닫힘 유지 (대화 내용은 보존) */
@@ -167,8 +178,8 @@ export default function SupportChatbotWidget() {
             </S.CloseBtn>
           </S.Header>
 
-          {/* 메시지 영역 */}
-          <S.Messages>
+          {/* 메시지 영역 — QA #169: ref 부착으로 내부 스크롤만 조정 (페이지 스크롤 방지) */}
+          <S.Messages ref={messagesContainerRef}>
             {/* 환영 메시지 (대화 시작 전) */}
             {messages.length === 0 && (
               <S.WelcomeMsg>

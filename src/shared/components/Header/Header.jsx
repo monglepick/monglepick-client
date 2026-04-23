@@ -17,7 +17,17 @@ import { ROUTES, NAV_ITEMS, USER_MENU_ITEMS } from '../../constants/routes';
 import ThemeToggle from './ThemeToggle';
 import * as S from './Header.styled';
 
-export default function Header() {
+/**
+ * @param {Object} props
+ * @param {'default' | 'compact'} [props.variant='default']
+ *   - 'default': 기본 헤더 — 상단 NAV 드롭다운 + 모바일 햄버거 + 유저 드롭다운 전체 노출
+ *   - 'compact': 슬림 헤더 — 상단 NAV 와 모바일 햄버거를 숨긴다. 로고/테마 토글/유저
+ *     드롭다운만 남겨 ChatWindow 같은 "전체 화면 집중" UX 에서도 계정 접근은 유지.
+ *     NAV 숨김으로 모바일 햄버거도 함께 의미를 잃으므로 같이 감춘다.
+ */
+export default function Header({ variant = 'default' }) {
+  // compact 모드 플래그 — 아래 렌더 트리에서 Nav/MobileToggle 조건 부여
+  const isCompact = variant === 'compact';
   // 현재 경로 — 활성 메뉴 하이라이트에 사용
   const location = useLocation();
   // 인증 상태 및 액션
@@ -233,6 +243,13 @@ export default function Header() {
           모바일(햄버거)에서는 같은 마크업이 column flex 흐름에 편입되어
           접이식 섹션처럼 동작한다(스타일에서 분기 처리).
         */}
+        {/*
+          compact 모드에서는 상단 NAV 트리 자체를 렌더하지 않는다.
+          모바일 햄버거의 AuthSection(모바일 유저메뉴) 도 같이 빠지지만,
+          compact 는 로고+테마+데스크톱 유저 드롭다운만으로 계정 접근을 보장한다
+          (ChatWindow 내부 사이드바에 세션 히스토리가 별도로 존재).
+        */}
+        {!isCompact && (
         <S.Nav ref={navRef} $isOpen={isMobileMenuOpen}>
           {NAV_ITEMS.filter(isNavItemVisible).map((item) => {
             /* ── 드롭다운(자식 있음) ── */
@@ -347,6 +364,7 @@ export default function Header() {
             )}
           </S.AuthSection>
         </S.Nav>
+        )}
 
         {/* ── 테마 토글 (데스크톱 전용 — 모바일에서는 햄버거 메뉴 내부 MobileOnly 에서 렌더됨) ── */}
         <S.DesktopOnly>
@@ -421,16 +439,21 @@ export default function Header() {
           )}
         </S.AuthSection>
 
-        {/* ── 모바일 햄버거 메뉴 버튼 ── */}
-        <S.MobileToggle
-          $isOpen={isMobileMenuOpen}
-          onClick={toggleMobileMenu}
-          aria-label="메뉴 열기/닫기"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </S.MobileToggle>
+        {/*
+          ── 모바일 햄버거 메뉴 버튼 ──
+          compact 모드에서는 숨긴다 — 열릴 Nav 자체가 없으므로 토글 버튼은 의미 없음.
+        */}
+        {!isCompact && (
+          <S.MobileToggle
+            $isOpen={isMobileMenuOpen}
+            onClick={toggleMobileMenu}
+            aria-label="메뉴 열기/닫기"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </S.MobileToggle>
+        )}
       </S.Inner>
     </S.HeaderWrapper>
   );

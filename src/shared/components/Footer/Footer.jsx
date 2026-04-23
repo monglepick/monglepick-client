@@ -67,9 +67,9 @@ export default function Footer() {
           */}
           <S.Nav>
             <S.NavTitle>계정</S.NavTitle>
-            <S.NavLink to={ROUTES.MYPAGE}>마이페이지</S.NavLink>
-            <S.NavLink to={ROUTES.POINT}>포인트</S.NavLink>
-            <S.NavLink to={ROUTES.PAYMENT}>결제·구독</S.NavLink>
+            <S.NavLink to={ROUTES.ACCOUNT_PROFILE}>마이페이지</S.NavLink>
+            <S.NavLink to={ROUTES.ACCOUNT_POINT}>포인트</S.NavLink>
+            <S.NavLink to={ROUTES.ACCOUNT_PAYMENT}>결제·구독</S.NavLink>
             <S.NavLink to={ROUTES.SUPPORT}>고객센터</S.NavLink>
           </S.Nav>
 
