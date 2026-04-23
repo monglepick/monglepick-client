@@ -51,6 +51,12 @@ import MatchPage from '../features/match/pages/MatchPage';
 import SupportPage from '../features/support/pages/SupportPage';
 import PaymentFailPage from '../features/payment/pages/PaymentFailPage';
 
+/* ── 법적 정책 페이지 (2026-04-23 Footer 후속) ── */
+import TermsPage from '../features/legal/pages/TermsPage';
+import PrivacyPage from '../features/legal/pages/PrivacyPage';
+import OperationPolicyPage from '../features/legal/pages/OperationPolicyPage';
+import RefundPolicyPage from '../features/legal/pages/RefundPolicyPage';
+
 /* ── Layer 3 계정 페이지 ── */
 import MyPage from '../features/user/pages/MyPage';
 import PointPage from '../features/point/pages/PointPage';
@@ -164,6 +170,17 @@ function App() {
           <Route path="/support" element={<SupportPage />} />
           <Route path="/payment/fail" element={<PaymentFailPage />} />
 
+          {/*
+            ── 법적 정책 페이지 4종 (2026-04-23 Footer 후속) ──
+            비로그인 접근 허용. LegalPageLayout 공용 컴포넌트를 사용해
+            현재는 placeholder "준비 중" 상태로 노출된다. 실제 약관 문구 확정 시
+            각 페이지 컴포넌트의 sections prop 만 채우면 본문이 자동 렌더된다.
+          */}
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/operation-policy" element={<OperationPolicyPage />} />
+          <Route path="/refund-policy" element={<RefundPolicyPage />} />
+
           {/* ════════════════════════════════════════════════════════════
               Layer 3 — 계정 허브 /account/*
 
@@ -225,9 +242,15 @@ function App() {
         </Route>
 
         {/* ══════════════════════════════════════════════════════════════
-            Layer 2 — 채팅 (MainLayout compact)
+            Layer 2 — 채팅 (MainLayout default + hideFooter)
+
+            2026-04-23 PR-2 의 슬림 헤더(compact) 로 편입 → 자체 헤더 중복 이슈
+            → Layer 0 독립 복귀 (채팅 중 전역 네비 불가) → 최종 재편 (본 버전):
+            풀 헤더를 그대로 얹고 Footer 만 숨긴다. ChatWindow 자체 헤더는
+            로고/타이틀을 제거한 "슬림 도구바" 로 축소 — 햄버거(사이드바) + 뒤로가기 + 새 대화.
+            결과: 상단 64px 전역 네비 + 44px 채팅 도구바 = 108px, 역할 명확 분리.
             ══════════════════════════════════════════════════════════════ */}
-        <Route element={<MainLayout variant="compact" />}>
+        <Route element={<MainLayout hideFooter />}>
           <Route path="/chat" element={<ChatWindow />} />
           <Route path="/chat/:sessionId" element={<ChatWindow />} />
         </Route>

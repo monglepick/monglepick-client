@@ -13,6 +13,7 @@
  */
 
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 /* 인증 Context 훅 — app/providers에서 가져옴 */
 import useAuthStore from '../../../shared/stores/useAuthStore';
 /* 쿠키→헤더 교환 API — 같은 feature 내의 authApi에서 가져옴 */
@@ -36,6 +37,12 @@ export default function OAuthCookiePage() {
   const { showReward } = useRewardToast();
   /* PR-5: rememberReturnTo 가 저장한 복귀 경로 또는 ROUTES.HOME 으로 이동 */
   const goAfterLogin = useReturnTo(ROUTES.HOME);
+  /*
+   * 신규 OAuth 가입자는 복귀 경로보다 온보딩 미션 페이지가 우선이므로,
+   * useReturnTo 를 거치지 않고 직접 navigate(ROUTES.ONBOARDING) 로 보낸다.
+   * 이 분기만을 위한 useNavigate 복원.
+   */
+  const navigate = useNavigate();
 
   /* 에러 메시지 상태 */
   const [error, setError] = useState('');

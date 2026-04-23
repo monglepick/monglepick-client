@@ -320,9 +320,14 @@ export default function Header({ variant = 'default' }) {
             );
           })}
 
-          {/* ── 테마 토글 (모바일 메뉴 내부 전용 — 데스크톱에서는 숨김) ── */}
+          {/*
+            ── 테마 토글 (모바일 메뉴 내부 전용) ──
+            모바일 햄버거 메뉴 내부에서는 드롭다운이 없는 맥락이므로 스위치 variant 를
+            그대로 한 row 로 노출한다. 햄버거 메뉴 섹션 구분 border-top 과 자연스럽게 결합.
+            데스크톱에서는 MobileOnly 로 숨김 — 유저 드롭다운 맨 아래 스위치가 담당.
+          */}
           <S.MobileOnly>
-            <ThemeToggle />
+            <ThemeToggle variant="switch" />
           </S.MobileOnly>
 
           {/*
@@ -366,10 +371,13 @@ export default function Header({ variant = 'default' }) {
         </S.Nav>
         )}
 
-        {/* ── 테마 토글 (데스크톱 전용 — 모바일에서는 햄버거 메뉴 내부 MobileOnly 에서 렌더됨) ── */}
-        <S.DesktopOnly>
-          <ThemeToggle />
-        </S.DesktopOnly>
+        {/*
+          ── 데스크톱 테마 토글 제거 (2026-04-23) ──
+          헤더 상단 바에서 홀로 떠 있던 ThemeToggle 을 제거.
+          - 로그인 상태: UserDropdown 맨 아래 스위치 row 로 이동 (환경 설정 그룹).
+          - 비로그인 상태: AuthSection 내부 로그인 버튼 왼쪽에 compact variant 로 노출.
+          - 모바일: 햄버거 메뉴 내부 MobileOnly 스위치 row 로 노출 (위 Nav 블록 참고).
+        */}
 
         {/*
           인증 영역 (데스크톱).
@@ -401,7 +409,6 @@ export default function Header({ variant = 'default' }) {
                 <S.UserDropdown role="menu">
                   {USER_MENU_ITEMS.map((item, idx) =>
                     item.divider ? (
-                      /* 그룹 구분선 — path가 없으므로 idx를 키로 사용 */
                       <S.DropdownDivider key={`divider-${idx}`} aria-hidden="true" />
                     ) : (
                       <S.DropdownItem
@@ -415,7 +422,14 @@ export default function Header({ variant = 'default' }) {
                       </S.DropdownItem>
                     ),
                   )}
-                  {/* 마지막 그룹 — 로그아웃 (path 없는 액션이라 별도 컴포넌트) */}
+                  {/*
+                    ── 다크 모드 스위치 (환경 설정 그룹) ──
+                    메뉴 이동 항목들과 로그아웃 사이의 "환경 설정" 슬롯.
+                    내부에서 stopPropagation + role="switch" 로 처리되므로
+                    여기서는 단순히 배치만 한다.
+                  */}
+                  <S.DropdownDivider aria-hidden="true" />
+                  <ThemeToggle variant="switch" />
                   <S.DropdownDivider aria-hidden="true" />
                   <S.DropdownLogoutBtn
                     type="button"
@@ -429,6 +443,11 @@ export default function Header({ variant = 'default' }) {
             </S.UserMenuWrapper>
           ) : (
             <>
+              {/*
+                비로그인 상태 — UserDropdown 이 없으므로 테마 토글을 여기에 직접 노출.
+                compact variant = 작은 원형 아이콘 버튼으로 로그인/회원가입 버튼과 균형.
+              */}
+              <ThemeToggle variant="compact" />
               <S.AuthBtn to={ROUTES.LOGIN}>
                 로그인
               </S.AuthBtn>

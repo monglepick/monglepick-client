@@ -47,6 +47,23 @@ export const ROUTES = {
   /** 결제 실패 콜백 (Toss SDK redirect, 비로그인 도달 가능) — 공용 레이어 유지 */
   PAYMENT_FAIL: '/payment/fail',
 
+  /*
+   * ── 법적 정책 페이지 (2026-04-23 Footer 후속) ──
+   *
+   * Footer 하단 "약관 및 정책" 섹션에서 참조하는 4개 독립 페이지.
+   * 현재는 LegalPageLayout 을 공유하는 placeholder 페이지이며,
+   * 실제 약관 문구가 확정되는 시점에 각 페이지 컴포넌트 내부만 채우면 된다.
+   * 모두 비로그인 접근 허용(법적으로 누구나 열람 가능해야 함).
+   */
+  /** 이용약관 */
+  TERMS: '/terms',
+  /** 개인정보처리방침 */
+  PRIVACY: '/privacy',
+  /** 운영정책 (커뮤니티/리뷰/추천 서비스 운영 규칙) */
+  OPERATION_POLICY: '/operation-policy',
+  /** 환불정책 (구독/AI 이용권/포인트 환불 규정) */
+  REFUND_POLICY: '/refund-policy',
+
   /* ── Layer 2: 채팅 (MainLayout compact) ── */
   /** AI 채팅 추천 페이지 */
   CHAT: '/chat',
@@ -164,6 +181,10 @@ export const NAV_ITEMS = [
       { path: ROUTES.MATCH, label: '둘이 영화 고르기' }, // /match
     ],
   },
+  /*
+   * 2026-04-23 수정: 홈 상단에 전용 검색창을 배치했지만, 사용자 요청으로
+   * 헤더의 "검색" 탭도 유지해 /search 페이지로 바로 진입할 수 있도록 복원.
+   */
   {
     key: 'search',
     label: '검색',

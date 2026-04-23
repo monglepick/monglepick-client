@@ -19,6 +19,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useModal } from '../../../shared/components/Modal';
 /* 인증 Context 훅 — app/providers에서 가져옴 (userId 전달용) */
 import useAuthStore from '../../../shared/stores/useAuthStore';
+/* 라우트 상수 — 유저 프로필 버튼 이동 경로용 */
+import { ROUTES } from '../../../shared/constants/routes';
 /* 채팅 상태 관리 훅 — 같은 feature 내의 hooks에서 가져옴 */
 import { useChat } from '../hooks/useChat';
 /* 채팅 이력 관리 훅 — 사이드바 세션 목록 */
@@ -442,64 +444,34 @@ export default function ChatWindow() {
         onRetry={() => loadSessions(true)}
       />
 
-      {/* ── 헤더 ── */}
-      <S.ChatHeader>
-        <S.ChatHeaderLeft>
-          {/* 이전 대화 목록 버튼 (인증된 사용자만 표시) */}
-          {isAuthenticated && (
-            <S.BackButton onClick={handleOpenSidebar} title="이전 대화 목록">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            </S.BackButton>
-          )}
-          {/* 뒤로가기 버튼 — 이전 페이지로 이동 */}
-          <S.BackButton onClick={() => navigate(-1)} title="뒤로가기">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </S.BackButton>
-          {/*
-            헤더 몽글이: idle 상태 고정.
-            isLoading일 때 헤더 캐릭터까지 바뀌면 시선이 분산되므로
-            헤더는 항상 idle(둥실둥실)을 유지한다.
-          */}
-          <MonggleCharacter animation="idle" size="sm" />
-          <div>
-            <S.HeaderTitle>몽글픽</S.HeaderTitle>
-            <S.HeaderSubtitle>AI 영화 추천</S.HeaderSubtitle>
-          </div>
-        </S.ChatHeaderLeft>
-        <S.HeaderClearBtn
-          onClick={async () => {
-            /* 대화 내역이 있을 때만 확인 요청 — 빈 상태에서는 바로 리셋 */
-            if (messages.length > 0) {
-              const confirmed = await showConfirm({
-                title: '새 대화 시작',
-                message: '현재 대화를 종료하고 새 대화를 시작할까요?',
-                type: 'confirm',
-                confirmLabel: '시작',
-                cancelLabel: '취소',
-              });
-              if (!confirmed) return;
-            }
-            /* useChat 내부 상태 초기화 (messages, session, status, point 등) */
-            clearMessages();
-            /* ChatWindow 로컬 상태 초기화 */
-            setInputText('');
-            setAttachedImage(null);
-            /* URL 리셋 */
-            navigate('/chat', { replace: true });
-            /* 입력 필드에 포커스 */
-            inputRef.current?.focus();
-          }}
-          title="새 대화 시작"
+      {/* ── Floating 액션 (2026-04-23 도구바 최종 제거) ──
+          기존 <S.ChatHeader> 풀 너비 도구바가 상단 MainLayout Header 와 이중 바를 만들어 UX 저해.
+          → ChatHeader 전체 제거. 필요한 두 기능만 메시지 영역의 좌/우 상단 모서리에
+          floating 으로 띄운다. 프로필 버튼은 상단 MainLayout Header 좌측에서 이미 제공. */}
+
+      {/* 좌상단: 이전 대화 목록 토글 (인증 유저만) */}
+      {isAuthenticated && (
+        <S.ChatFloatingHamburger
+          type="button"
+          onClick={handleOpenSidebar}
+          title="이전 대화 목록"
+          aria-label="이전 대화 목록 열기"
         >
-          + 새 대화
-        </S.HeaderClearBtn>
-      </S.ChatHeader>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </S.ChatFloatingHamburger>
+      )}
+
+      {/*
+        2026-04-23: 우상단 "+ 새 대화" 버튼 제거.
+        대안 진입점:
+          - 좌상단 햄버거로 열리는 이전 대화 사이드바 내부의 "새 대화" 진입
+          - URL `/chat` 직접 이동 또는 상단 로고 → /home → 다시 채팅 진입
+        showConfirm/clearMessages 등의 유틸 핸들러는 사이드바 측에서 그대로 재사용.
+      */}
 
       {/* ── 포인트/쿼터 정보 바 (추천 완료 후 point_update 수신 시 표시) ──
            2026-04-15 확장: source(GRADE_FREE/SUB_BONUS/PURCHASED/BLOCKED)별로
