@@ -65,7 +65,6 @@ export default function LegalPageLayout({
             <div key={section.title}>
               <S.SectionTitle>{section.title}</S.SectionTitle>
               {section.paragraphs.map((paragraph, idx) => (
-                /* eslint-disable-next-line react/no-array-index-key */
                 <S.Paragraph key={idx}>{paragraph}</S.Paragraph>
               ))}
             </div>

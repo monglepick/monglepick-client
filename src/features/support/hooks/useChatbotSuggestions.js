@@ -39,7 +39,7 @@ export default function useChatbotSuggestions(limit = 4) {
         if (Array.isArray(data) && data.length > 0) {
           setPrompts(data.map((s) => s?.text).filter(Boolean));
         }
-      } catch (_) {
+      } catch {
         /* 네트워크 오류 시 FALLBACK 유지 */
       }
     };
