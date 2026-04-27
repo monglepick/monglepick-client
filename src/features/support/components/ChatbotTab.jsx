@@ -72,13 +72,17 @@ export default function ChatbotTab({ onSwitchToTicket }) {
       });
     };
 
-    /* Agent v3 matched_faq 페이로드 {faq_id, category, question} → UI {id, question} 매핑 */
+    /* Agent v3 matched_faq 페이로드 {faq_id, category, question} → UI {id, question} 매핑.
+       2026-04-27: 빈 question 항목은 카드로 렌더할 텍스트가 없어 빈 말풍선처럼 보이므로
+       UI 가드 차원에서 한 번 더 걸러낸다(서버 측 _serialize_matched_faqs 와 belt-and-suspenders). */
     const mapMatchedFaqs = (items) =>
-      (items || []).map((m) => ({
-        id: m.faq_id,
-        category: m.category,
-        question: m.question,
-      }));
+      (items || [])
+        .map((m) => ({
+          id: m.faq_id,
+          category: m.category,
+          question: m.question,
+        }))
+        .filter((m) => (m.question || '').trim());
 
     try {
       await sendSupportChatSse(
@@ -171,9 +175,10 @@ export default function ChatbotTab({ onSwitchToTicket }) {
         {/* 메시지 목록 */}
         {messages.map((msg, idx) => (
           <div key={idx}>
-            {/* SSE 자리표시자(토큰 수신 전) 의 빈 봇 버블은 렌더하지 않는다 —
-                바로 아래 타이핑 인디케이터가 시각적 자리 표시를 대체한다. */}
-            {!(msg.role === 'bot' && msg.pending && !msg.content) && (
+            {/* SSE 자리표시자(토큰 수신 전) 또는 본문이 비어 있는 봇 메시지는 렌더하지 않는다 —
+                자리표시자 단계에서는 타이핑 인디케이터가 시각적 자리 표시를 대체하고,
+                token 미수신 등 예외 상황에서도 빈 말풍선이 남지 않도록 방어한다. */}
+            {!(msg.role === 'bot' && !(msg.content || '').trim()) && (
               <S.MsgRow $isUser={msg.role === 'user'}>
                 <S.MsgBubble $isUser={msg.role === 'user'}>
                   {msg.content}
